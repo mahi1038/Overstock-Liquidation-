@@ -70,8 +70,8 @@ function App() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
       {/* SideNavbar: hidden on small screens, visible on md+ */}
-      <div className="hidden md:block">
-        <SideNavbar />
+      <div className="hidden md:block"> */}
+         <SideNavbar /> 
         <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
       <div style={{ marginLeft: isOpen ? '280px' : '80px', padding: '20px', width: '100%', transition: 'margin-left 0.3s ease' }}></div>
       </div>
