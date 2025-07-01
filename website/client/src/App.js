@@ -1,4 +1,5 @@
 import SideNavbar from './components/SideNavbar.jsx';
+import Sidebar from './components/Sidebar.js';
 import { useState } from 'react';
 import SkuSearchEdit from './components/SkuSearchEdit.jsx';
 import PredictionResults from './components/PredictionResults.jsx';

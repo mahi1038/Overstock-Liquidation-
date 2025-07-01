@@ -1,0 +1,47 @@
+
+.sidebar{
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  background-color: #111827; /* dark slate */
+  color: #ffffff;
+  height: 100vh;
+  width: 280px;
+  padding: 24px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar .logo {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.sidebar hr {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link {
+  font-size: 1rem;
+  padding: 12px 16px;
+  color: #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  transition: background 0.2s ease;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+  background-color: #1f2937;
+  color: #ffffff;
+}
+
+.sidebar .dropdown-toggle {
+  font-size: 0.95rem;
+}
+
+.sidebar img {
+  border: 2px solid #ffffff22;
+}
