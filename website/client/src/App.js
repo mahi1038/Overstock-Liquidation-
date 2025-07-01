@@ -5,6 +5,7 @@ import SkuSearchEdit from './components/SkuSearchEdit.jsx';
 import PredictionResults from './components/PredictionResults.jsx';
 
 function App() {
+    const [isOpen, setIsOpen] = useState(true);
   // Mock data for stats and recent activity
   const stats = [
     { label: 'Total Sales', value: '$12,340', icon: '💰' },
@@ -71,6 +72,8 @@ function App() {
       {/* SideNavbar: hidden on small screens, visible on md+ */}
       <div className="hidden md:block">
         <SideNavbar />
+        <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
+      <div style={{ marginLeft: isOpen ? '280px' : '80px', padding: '20px', width: '100%', transition: 'margin-left 0.3s ease' }}></div>
       </div>
 
       {/* Main content */}
