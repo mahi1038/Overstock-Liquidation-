@@ -70,14 +70,21 @@ function App() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
       {/* SideNavbar: hidden on small screens, visible on md+ */}
-      <div className="hidden md:block"> */}
-         <SideNavbar /> 
+      <div className="hidden md:block"> 
+         {/* <SideNavbar />  */}
         <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
-      <div style={{ marginLeft: isOpen ? '280px' : '80px', padding: '20px', width: '100%', transition: 'margin-left 0.3s ease' }}></div>
+      {/* <div style={{ marginLeft: isOpen ? '1px' : '80px', padding: '20px', width: '100%', transition: 'margin-left 0.3s ease' }}></div> */}
       </div>
 
       {/* Main content */}
-      <div className="flex-1 p-4 md:ml-64" style={{ backgroundColor: 'rgba(244, 251, 255, 0.93)' }}>
+      {/* <div className="flex-1 p-4 md:ml-64" style={{ backgroundColor: 'rgba(244, 251, 255, 0.93)' }}> */}
+      <div
+  className="flex-1 p-4 transition-all duration-300"
+  style={{
+    backgroundColor: 'rgba(244, 251, 255, 0.93)',
+    marginLeft: isOpen ? '280px' : '80px',
+  }}
+>
         {/* Header row */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
