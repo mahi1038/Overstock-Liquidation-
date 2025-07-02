@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar.js';
 import { useState } from 'react';
 import SkuSearchEdit from './components/SkuSearchEdit.jsx';
 import PredictionResults from './components/PredictionResults.jsx';
+import StoreRiskMap from './components/StoreVisualize.jsx';
 
 function App() {
     const [isOpen, setIsOpen] = useState(true);
@@ -19,6 +20,13 @@ function App() {
     { id: 3, user: 'Charlie', action: 'Purchased SKU456', time: '1h ago' },
     { id: 4, user: 'Dana', action: 'Requested refund', time: '2h ago' },
   ];
+  const storeData = [
+  { storeId: 'STORE001', name: 'Delhi Outlet', lat: 28.6139, lng: 77.2090, stock: 120, risk: 'high' },
+  { storeId: 'STORE002', name: 'Mumbai Hub', lat: 19.0760, lng: 72.8777, stock: 85, risk: 'moderate' },
+  { storeId: 'STORE003', name: 'Kolkata Depot', lat: 22.5726, lng: 88.3639, stock: 45, risk: 'low' },
+  { storeId: 'STORE004', name: 'Bangalore Center', lat: 12.9716, lng: 77.5946, stock: 200, risk: 'ok' }
+];
+
 
   // State for SKU search and edit
   const [sku, setSku] = useState('');
@@ -121,6 +129,11 @@ function App() {
           prediction={prediction}
           handleRunPrediction={handleRunPrediction}
         />
+        {prediction && (
+       <StoreRiskMap  storeData={storeData} />
+
+)}
+
       </div>
     </div>
   );
