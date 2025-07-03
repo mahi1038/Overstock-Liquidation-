@@ -1,47 +1,45 @@
-import SideNavbar from './components/SideNavbar.jsx';
-import Sidebar from './components/Sidebar.js';
-import { useState } from 'react';
-import SkuSearchEdit from './components/SkuSearchEdit.jsx';
-import PredictionResults from './components/PredictionResults.jsx';
-import StoreRiskMap from './components/StoreVisualize.jsx';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+
+import Sidebar from './components/Sidebar';
+import SkuSearchEdit from './components/SkuSearchEdit';
+import PredictionResults from './components/PredictionResults';
+import StoreRiskMap from './components/StoreVisualize';
+import Login from './components/Login';
+import Signup from './components/Signup';
+
+import { auth } from './firebase/config';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import storeData from './data/storeData';
 
 function App() {
-    const [isOpen, setIsOpen] = useState(true);
-  // Mock data for stats and recent activity
-  const stats = [
-    { label: 'Total Sales', value: '$12,340', icon: '💰' },
-    { label: 'New Users', value: '1,234', icon: '👤' },
-    { label: 'Revenue', value: '$8,900', icon: '📈' },
-    { label: 'Pending Orders', value: '23', icon: '🕒' },
-  ];
-  const recentActivity = [
-    { id: 1, user: 'Alice', action: 'Purchased SKU123', time: '2m ago' },
-    { id: 2, user: 'Bob', action: 'Signed up', time: '10m ago' },
-    { id: 3, user: 'Charlie', action: 'Purchased SKU456', time: '1h ago' },
-    { id: 4, user: 'Dana', action: 'Requested refund', time: '2h ago' },
-  ];
-  const storeData = [
-  { storeId: 'STORE001', name: 'Delhi Outlet', lat: 28.6139, lng: 77.2090, stock: 120, risk: 'high' },
-  { storeId: 'STORE002', name: 'Mumbai Hub', lat: 19.0760, lng: 72.8777, stock: 85, risk: 'moderate' },
-  { storeId: 'STORE003', name: 'Kolkata Depot', lat: 22.5726, lng: 88.3639, stock: 45, risk: 'low' },
-  { storeId: 'STORE004', name: 'Bangalore Center', lat: 12.9716, lng: 77.5946, stock: 200, risk: 'ok' }
-];
-
-
-  // State for SKU search and edit
+  const [user, setUser] = useState(null);
+  const [isOpen, setIsOpen] = useState(true);
   const [sku, setSku] = useState('');
   const [skuData, setSkuData] = useState(null);
   const [editStock, setEditStock] = useState('');
   const [editPrice, setEditPrice] = useState('');
   const [prediction, setPrediction] = useState(null);
 
-  // Mock SKU database
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, setUser);
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      alert('Logged out successfully!');
+    } catch (err) {
+      alert('Error logging out: ' + err.message);
+    }
+  };
+
   const mockSkuDB = {
     SKU123: { sku: 'SKU123', store: 'Store A', stock: 120, price: 15.99 },
     SKU456: { sku: 'SKU456', store: 'Store B', stock: 80, price: 12.49 },
   };
 
-  // Handle SKU search
   const handleSearch = () => {
     const data = mockSkuDB[sku.toUpperCase()];
     setSkuData(data || null);
@@ -51,16 +49,11 @@ function App() {
     }
   };
 
-  // Handle SKU update
   const handleUpdate = () => {
-    // Here you would update the DB; for now, just update local state
     setSkuData({ ...skuData, stock: editStock, price: editPrice });
-    // Optionally show a success message
   };
 
-  // Handle Run Prediction
   const handleRunPrediction = () => {
-    // Mock prediction result
     setPrediction({
       atRisk: 5,
       riskLevel: 'High',
@@ -76,66 +69,79 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen">
-      {/* SideNavbar: hidden on small screens, visible on md+ */}
-      <div className="hidden md:block"> 
-         {/* <SideNavbar />  */}
-        <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
-      {/* <div style={{ marginLeft: isOpen ? '1px' : '80px', padding: '20px', width: '100%', transition: 'margin-left 0.3s ease' }}></div> */}
-      </div>
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            user ? (
+              <div className="flex flex-col md:flex-row min-h-screen">
+                <div className="hidden md:block">
+                  <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
+                </div>
+                <div
+                  className="flex-1 p-4 transition-all duration-300"
+                  style={{
+                    backgroundColor: 'rgba(244, 251, 255, 0.93)',
+                    marginLeft: isOpen ? '280px' : '80px',
+                  }}
+                >
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                      <h3 className="text-3xl font-bold text-gray-800">
+                        AI Overstock Liquidation Dashboard
+                      </h3>
+                      <p className="text-gray-500">
+                        Manage SKUs, predict overstock, and optimize inventory
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                      <button className="p-2 rounded-full bg-white shadow hover:bg-blue-50 ml-2">
+                        <span role="img" aria-label="notifications">🔔</span>
+                      </button>
+                      <img
+                        src="https://randomuser.me/api/portraits/men/32.jpg"
+                        alt="Profile"
+                        className="w-10 h-10 rounded-full border-2 border-blue-200 object-cover"
+                      />
+                      <button
+                        onClick={handleLogout}
+                        className="px-3 py-1 bg-red-600 text-white rounded-md text-sm hover:bg-red-700"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </div>
 
-      {/* Main content */}
-      {/* <div className="flex-1 p-4 md:ml-64" style={{ backgroundColor: 'rgba(244, 251, 255, 0.93)' }}> */}
-      <div
-  className="flex-1 p-4 transition-all duration-300"
-  style={{
-    backgroundColor: 'rgba(244, 251, 255, 0.93)',
-    marginLeft: isOpen ? '280px' : '80px',
-  }}
->
-        {/* Header row */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div>
-            <h3 className="text-3xl font-bold text-gray-800">AI Overstock Liquidation Dashboard</h3>
-            <p className="text-gray-500">Manage SKUs, predict overstock, and optimize inventory</p>
-          </div>
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <button className="p-2 rounded-full bg-white shadow hover:bg-blue-50 ml-2">
-              <span role="img" aria-label="notifications">🔔</span>
-            </button>
-            <img
-              src="https://randomuser.me/api/portraits/men/32.jpg"
-              alt="Profile"
-              className="w-10 h-10 rounded-full border-2 border-blue-200 object-cover"
-            />
-          </div>
-        </div>
+                  <SkuSearchEdit
+                    sku={sku}
+                    setSku={setSku}
+                    skuData={skuData}
+                    editStock={editStock}
+                    setEditStock={setEditStock}
+                    editPrice={editPrice}
+                    setEditPrice={setEditPrice}
+                    handleSearch={handleSearch}
+                    handleUpdate={handleUpdate}
+                  />
 
-        {/* SKU Search & Edit Component */}
-        <SkuSearchEdit
-          sku={sku}
-          setSku={setSku}
-          skuData={skuData}
-          editStock={editStock}
-          setEditStock={setEditStock}
-          editPrice={editPrice}
-          setEditPrice={setEditPrice}
-          handleSearch={handleSearch}
-          handleUpdate={handleUpdate}
+                  <PredictionResults
+                    prediction={prediction}
+                    handleRunPrediction={handleRunPrediction}
+                  />
+
+                  {prediction && <StoreRiskMap storeData={storeData} />}
+                </div>
+              </div>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
-
-        {/* Prediction Results Component */}
-        <PredictionResults
-          prediction={prediction}
-          handleRunPrediction={handleRunPrediction}
-        />
-        {prediction && (
-       <StoreRiskMap  storeData={storeData} />
-
-)}
-
-      </div>
-    </div>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
+    </Router>
   );
 }
 
