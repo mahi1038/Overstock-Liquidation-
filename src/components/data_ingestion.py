@@ -28,8 +28,8 @@ class DataIngestion:
         dir_name = os.path.dirname(self.data_ingestion_config.train_path)
         os.makedirs(dir_name, exist_ok = True)
 
-        train_df.to_csv(self.data_ingestion_config.train_path)
-        test_df.to_csv(self.data_ingestion_config.test_path)
+        train_df.to_csv(self.data_ingestion_config.train_path, index = False)
+        test_df.to_csv(self.data_ingestion_config.test_path, index = False)
 
     def initiate_data_ingestion(self):
         final_df = self.load_data()

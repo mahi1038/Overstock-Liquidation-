@@ -77,7 +77,7 @@ class DataTransformation:
             ('label_encode', LabelEncodingTransformer(cols=label_cols)),
             ('scaler', ColumnTransformer(transformers=[
                 ('scale_num', StandardScaler(), numeric_cols)
-            ], remainder='drop'))
+            ], remainder='passthrough'))
         ])
 
         return pipeline
@@ -131,8 +131,8 @@ class DataTransformation:
 
         transformed_train = pipeline.transform(X_train_df)
         transformed_test = pipeline.transform(X_test_df)
-        transformed_train = transformed_train.astype(np.float32)
-        transformed_test = transformed_test.astype(np.float32)
+        # transformed_train = transformed_train.astype(np.float32)
+        # transformed_test = transformed_test.astype(np.float32)
         print('data transformation done')
 
         train_arr = np.c_[transformed_train, np.array(y_train_df)]
@@ -146,6 +146,7 @@ class DataTransformation:
 
         feature_names_path = os.path.join(os.path.dirname(self.data_transformation_config.preprocessor_obj_file_path), "feature_names.npy")
         np.save(feature_names_path, np.array(X_train_df.columns))
+        print(X_train_df.columns)
 
         data_transformation_artifact = DataTransformationArtifact(
             transformed_train_file_path=self.data_transformation_config.transformed_train_path,
