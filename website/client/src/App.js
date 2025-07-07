@@ -13,6 +13,10 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import storeData from './data/storeData';
 
 function App() {
+  const [itemId, setItemId] = useState("");
+const [storeId, setStoreId] = useState("");
+const [snap, setSnap] = useState("");
+const [sellPrice, setSellPrice] = useState("");
   const [user, setUser] = useState(null);
   const [isOpen, setIsOpen] = useState(true);
   const [sku, setSku] = useState('');
@@ -39,7 +43,7 @@ function App() {
     SKU123: { sku: 'SKU123', store: 'Store A', stock: 120, price: 15.99 },
     SKU456: { sku: 'SKU456', store: 'Store B', stock: 80, price: 12.49 },
   };
-
+  
   const handleSearch = () => {
     const data = mockSkuDB[sku.toUpperCase()];
     setSkuData(data || null);
@@ -52,6 +56,39 @@ function App() {
   const handleUpdate = () => {
     setSkuData({ ...skuData, stock: editStock, price: editPrice });
   };
+  const handleSubmit = async () => {
+  const inputData = {
+    itemId,
+    storeId,
+    snap,
+    sellPrice: parseFloat(sellPrice),
+  };
+
+  try {
+    const response = await fetch("http://localhost:5050/submit-input", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(inputData),
+    });
+
+    if (!response.ok) throw new Error("Failed to submit");
+
+    const result = await response.json();
+    console.log("Server response:", result);
+    alert("Item details saved successfully!");
+
+    // Optional: Reset form
+    setItemId("");
+    setStoreId("");
+    setSnap("");
+    setSellPrice("");
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Submission failed!");
+  }
+};
 
   const handleRunPrediction = () => {
     setPrediction({
@@ -123,6 +160,16 @@ function App() {
                     setEditPrice={setEditPrice}
                     handleSearch={handleSearch}
                     handleUpdate={handleUpdate}
+
+                    itemId={itemId}
+  setItemId={setItemId}
+  storeId={storeId}
+  setStoreId={setStoreId}
+  snap={snap}
+  setSnap={setSnap}
+  sellPrice={sellPrice}
+  setSellPrice={setSellPrice}
+  handleSubmit={handleSubmit}
                   />
 
                   <PredictionResults
