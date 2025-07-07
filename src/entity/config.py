@@ -29,7 +29,8 @@ class DataTransformationConfig:
 
 
 class ModelTrainerConfig:
-    def __init__(self, training_pipeline: TrainingConfig):
-        pass
+  def __init__(self, training_pipeline_config: TrainingConfig):
+    self.model_trainer_dir = os.path.join(training_pipeline_config.artifact_dir_path, constants.MODEL_TRAINER_DIR_NAME)
+    self.model_file_path = os.path.join(self.model_trainer_dir, constants.MODEL_TRAINER_BEST_MODEL_FILE_NAME)
 
 

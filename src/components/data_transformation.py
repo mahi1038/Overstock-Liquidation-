@@ -42,8 +42,9 @@ class LabelEncodingTransformer(BaseEstimator, TransformerMixin):
                 le = self.encoders[col]
                 mask = X[col].isin(le.classes_)
                 X.loc[mask, col] = le.transform(X.loc[mask, col])
-                X[col] = X[col].fillna(-1)
-                return X
+                # X[col] = pd.to_numeric(X[col], errors='coerce').fillna(-1)
+        return X
+
 
 
 class ColumnSelector(BaseEstimator, TransformerMixin):
@@ -131,8 +132,8 @@ class DataTransformation:
 
         transformed_train = pipeline.transform(X_train_df)
         transformed_test = pipeline.transform(X_test_df)
-        # transformed_train = transformed_train.astype(np.float32)
-        # transformed_test = transformed_test.astype(np.float32)
+        transformed_train = transformed_train.astype(np.float32)
+        transformed_test = transformed_test.astype(np.float32)
         print('data transformation done')
 
         train_arr = np.c_[transformed_train, np.array(y_train_df)]

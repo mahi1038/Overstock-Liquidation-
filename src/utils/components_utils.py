@@ -3,6 +3,8 @@ import numpy as np
 import datetime as dt
 import os
 import pickle
+import joblib
+from sklearn.metrics import mean_squared_log_error
 
 
 def convert_dataframe(calendar, sales, prices) -> pd.DataFrame:
@@ -113,7 +115,7 @@ def add_features(data_df : pd.DataFrame) -> pd.DataFrame:
 
 
 '''
-Data Transformation uitls
+Data Transformation utils
 '''
 def save_npz_array_data(filepath: str, array: np.array):
     os.makedirs(os.path.dirname(filepath), exist_ok = True)
@@ -126,6 +128,24 @@ def save_object_pkl(filepath: str, obj: object):
     with open(filepath, 'wb') as file:
         pickle.dump(obj, file)
 
+"""
+Model Trainer utils
+"""
+
+def save_model_as_joblib(filepath: str, obj: object):
+    os.makedirs(os.path.dirname(filepath), exist_ok = True)
+    joblib.dump(obj, filepath)
+
+def calculate_rmsle(y_true, y_pred):
+    y_pred_clipped = np.maximum(y_pred, 0)
+    y_test_clipped = np.maximum(y_true, 0)
+    rmsle = np.sqrt(mean_squared_log_error(y_test_clipped, y_pred_clipped))
+    return rmsle
+
+def calculate_smape(y_true, y_pred):
+    return 100 * np.mean(
+        2 * np.abs(y_pred - y_true) / (np.abs(y_true) + np.abs(y_pred) + 1e-8)
+    )
 
 
 

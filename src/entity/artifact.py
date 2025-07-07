@@ -11,5 +11,16 @@ class DataTransformationArtifact:
         self.transformed_test_file_path = transformed_test_file_path
         self.preprocessor_obj_file_path = preprocessor_obj_file_path
 
+class ClassificationMetric:
+    def __init__(self, rmsle_value, smape_value):
+        self.rmsle_value = rmsle_value
+        self.smape_value = smape_value
+
+class ModelTrainerArtifact:
+    def __init__(self, trained_model_file_path, train_metrics, test_metrics):
+        self.trained_model_file_path = trained_model_file_path
+        self.train_metrics = train_metrics
+        self.test_metrics = test_metrics
+
     
         

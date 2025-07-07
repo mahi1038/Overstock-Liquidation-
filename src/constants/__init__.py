@@ -32,6 +32,5 @@ Model Trainer variables
 
 MODEL_TRAINER_DIR_NAME = 'model_trainer'
 MODEL_TRAINER_BEST_MODEL_FILE_NAME = 'model.pkl'
-MODEL_PARAMETERS = ''
 
 
