@@ -17,7 +17,7 @@ class DataPusher:
         self.prices_path = prices_path
 
     def get_evaluation_dataframe(self):
-       
+
      sales = pd.read_csv(self.sales_path)
      prices = pd.read_csv(self.prices_path)
      calendar = pd.read_csv(self.calendar_path)
@@ -39,13 +39,13 @@ class DataPusher:
 
      final_df['date'] = pd.to_datetime(final_df['date'])
 
-        final_df = add_features(final_df)
+     final_df = add_features(final_df)
 
-        final_columns = ['d', 'item_id', 'dept_id', 'store_id', 'state_id', 'weekday', 'month', 'week_of_month', 'event_name_1', 'event_type_1', 'event_name_2',
-                 'event_type_2', 'snap_active', 'sell_price', 'lag_28', 'lag_7', 'rolling_mean_28',  'price_pct_change', 'zero_streak', 'sales_28_sum']
-        
-        final_df = final_df.dropna(subset=['lag_28', 'lag_7', 'rolling_mean_28', 'sales_28_sum', 'price_pct_change', 'zero_streak'])
-        return final_df[final_columns]
+     final_columns = ['item_id', 'dept_id', 'store_id', 'state_id', 'weekday', 'month', 'week_of_month', 'event_name_1', 'event_type_1', 'event_name_2',
+            'event_type_2', 'snap_active', 'sell_price', 'lag_28', 'lag_7', 'rolling_mean_28',  'price_pct_change', 'zero_streak', 'sales_28_sum']
+    
+     final_df = final_df.dropna(subset=['lag_28', 'lag_7', 'rolling_mean_28', 'sales_28_sum', 'price_pct_change', 'zero_streak'])
+     return final_df[final_columns]
 
 
 
