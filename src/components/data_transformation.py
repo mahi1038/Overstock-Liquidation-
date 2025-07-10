@@ -89,16 +89,16 @@ class DataTransformation:
         test_df = pd.read_csv(self.data_ingestion_artifact.test_path)
         print('initiated data transformation')
 
-        drop_cols = ['lag_28', 'lag_7','rolling_mean_28', 'sales_28_sum', 'price_pct_change', 'zero_streak']
+        # drop_cols = ['lag_28', 'lag_7','rolling_mean_28', 'sales_28_sum', 'price_pct_change', 'zero_streak']
 
-        train_df = train_df.dropna(subset=drop_cols)
-        test_df = test_df.dropna(subset=drop_cols)
+        # train_df = train_df.dropna(subset=drop_cols)
+        # test_df = test_df.dropna(subset=drop_cols)
 
-        if train_df.shape[0] == 0:
-            raise ValueError("Training set is empty after dropping missing values.")
+        # if train_df.shape[0] == 0:
+        #     raise ValueError("Training set is empty after dropping missing values.")
 
-        if test_df.shape[0] == 0:
-            raise ValueError("Test set is empty after dropping missing values.")
+        # if test_df.shape[0] == 0:
+        #     raise ValueError("Test set is empty after dropping missing values.")
         
         for df in [train_df, test_df]:
             if 'sell_price' in df.columns:
