@@ -15,8 +15,13 @@ import storeData from './data/storeData';
 function App() {
   const [itemId, setItemId] = useState("");
 const [storeId, setStoreId] = useState("");
-const [snap, setSnap] = useState("");
+const [snap, setSnap] = useState("Yes");
 const [sellPrice, setSellPrice] = useState("");
+const [eventName1, setEventName1] = useState("NAN");
+const [eventType1, setEventType1] = useState("NAN");
+const [eventName2, setEventName2] = useState("NAN");
+const [eventType2, setEventType2] = useState("NAN");
+
   const [user, setUser] = useState(null);
   const [isOpen, setIsOpen] = useState(true);
   const [sku, setSku] = useState('');
@@ -56,39 +61,40 @@ const [sellPrice, setSellPrice] = useState("");
   const handleUpdate = () => {
     setSkuData({ ...skuData, stock: editStock, price: editPrice });
   };
-  const handleSubmit = async () => {
-  const inputData = {
-    itemId,
-    storeId,
-    snap,
-    sellPrice: parseFloat(sellPrice),
-  };
-
+const handleSubmit = async () => {
   try {
+    const payload = {
+       item_id: itemId,
+      store_id: storeId,
+      snap,
+      sell_price: sellPrice,
+      event_name_1: eventName1,
+      event_type_1: eventType1,
+      event_name_2: eventName2,
+      event_type_2: eventType2,
+    };
+
     const response = await fetch("http://localhost:5050/submit-input", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(inputData),
+      body: JSON.stringify(payload),
     });
 
-    if (!response.ok) throw new Error("Failed to submit");
+    if (!response.ok) {
+      throw new Error("Failed to submit");
+    }
 
     const result = await response.json();
-    console.log("Server response:", result);
-    alert("Item details saved successfully!");
-
-    // Optional: Reset form
-    setItemId("");
-    setStoreId("");
-    setSnap("");
-    setSellPrice("");
+    console.log("Submitted successfully:", result);
+    alert("Input saved successfully!");
   } catch (error) {
     console.error("Error:", error);
-    alert("Submission failed!");
+    alert("Submission failed.");
   }
 };
+
 
   const handleRunPrediction = () => {
     setPrediction({
@@ -150,18 +156,18 @@ const [sellPrice, setSellPrice] = useState("");
                     </div>
                   </div>
 
-                  <SkuSearchEdit
-                    sku={sku}
-                    setSku={setSku}
-                    skuData={skuData}
-                    editStock={editStock}
-                    setEditStock={setEditStock}
-                    editPrice={editPrice}
-                    setEditPrice={setEditPrice}
-                    handleSearch={handleSearch}
-                    handleUpdate={handleUpdate}
+                 <SkuSearchEdit
+  sku={sku}
+  setSku={setSku}
+  skuData={skuData}
+  editStock={editStock}
+  setEditStock={setEditStock}
+  editPrice={editPrice}
+  setEditPrice={setEditPrice}
+  handleSearch={handleSearch}
+  handleUpdate={handleUpdate}
 
-                    itemId={itemId}
+  itemId={itemId}
   setItemId={setItemId}
   storeId={storeId}
   setStoreId={setStoreId}
@@ -169,8 +175,18 @@ const [sellPrice, setSellPrice] = useState("");
   setSnap={setSnap}
   sellPrice={sellPrice}
   setSellPrice={setSellPrice}
+
+  eventName1={eventName1}
+  setEventName1={setEventName1}
+  eventType1={eventType1}
+  setEventType1={setEventType1}
+  eventName2={eventName2}
+  setEventName2={setEventName2}
+  eventType2={eventType2}
+  setEventType2={setEventType2}
+
   handleSubmit={handleSubmit}
-                  />
+/>
 
                   <PredictionResults
                     prediction={prediction}
