@@ -6,4 +6,5 @@ load_dotenv()  # load .env file
 
 mongo_uri = os.getenv("MONGODB_URI")
 client = MongoClient(mongo_uri)
-db = client.get_default_database()  # will use 'overstockDB' from URI
+db = client["aioverstock"]
+sales_collection = db["sales_data"] # will use 'overstockDB' from URI
