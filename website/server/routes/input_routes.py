@@ -5,6 +5,7 @@ from controllers.input_controller import store_input, get_all_inputs
 from datetime import datetime
 import math
 from config.mongodb import db,sales_collection
+from utils.feature import compute_features_from_mongo  
 input_bp = Blueprint('input_bp', __name__)
 
 def get_week_of_month(date):
@@ -49,29 +50,8 @@ def submit_input():
       datetime.strptime(latest_date_str, "%Y-%m-%d") if isinstance(latest_date_str, str) else latest_date_str
     )
     now= latest_date + timedelta(days=1)
-    # Compute lag_7 and lag_28 sales
-    def compute_lags(item_id, now, collection):
-     start_7 = now - timedelta(days=7)
-     start_28 = now - timedelta(days=28)
  
-    # Query for last 7 days
-     sales_last_7 = collection.find({
-        "item_id": item_id,
-        "date": {"$gte": start_7, "$lt": now}
-     })
-     lag_7 = sum(doc.get("sales", 0) for doc in sales_last_7)
-
-    # Query for last 28 days
-     sales_last_28 = collection.find({
-        "item_id": item_id,
-         "date": {"$gte": start_28, "$lt": now}
-    })
-     lag_28 = sum(doc.get("sales", 0) for doc in sales_last_28)
-
-     return lag_7, lag_28
-
-
-    lag_7, lag_28 = compute_lags(data['item_id'], now, sales_collection)
+    features = compute_features_from_mongo(data['item_id'], data['store_id'], now)
     structured_data = {
     "item_id": data['item_id'],
     "dept_id": derive_department_id(data['item_id']),   # renamed
@@ -86,12 +66,10 @@ def submit_input():
     "event_type_2": data['event_type_2'],
     "snap_active": 1 if data['snap'].lower() == "yes" else 0,
     "sell_price": float(data['sell_price']),
-    "lag_28": lag_28,
-    "lag_7": lag_7,
-    "rolling_mean_28": None,          # renamed
-    "price_pct_change": None,         # renamed
-    "zero_streak": None,              # added
-    "sales_28_sum": None,             # added
+    "lag_28": features["lag_28"],
+    "lag_7": features["lag_7"],
+    "rolling_mean_28": features["rolling_mean_28"],
+    "zero_streak": features["zero_streak"],
     "created_at": now.isoformat()
     }
 
