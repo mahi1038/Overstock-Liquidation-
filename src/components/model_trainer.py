@@ -96,3 +96,4 @@ class ModelTrainer:
         )
 
         return model_trainer_artifact
+
