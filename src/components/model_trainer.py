@@ -12,6 +12,7 @@ class ModelTrainer:
         self.model_trainer_config = model_trainer_config
 
     def initiate_model_training(self):
+        print("🔁 Loading transformed data...")
         train_loaded = np.load(self.data_transformation_artifact.transformed_train_file_path, allow_pickle=True)
         train_arr_loaded = train_loaded['data']
 
@@ -29,20 +30,23 @@ class ModelTrainer:
         X_test = test_arr_loaded[:, :-1]
         y_test = test_arr_loaded[:, -1]
 
+        print("🔎 Checking for NaNs in labels...")
         y_train = pd.to_numeric(y_train, errors='coerce')
         y_test = pd.to_numeric(y_test, errors='coerce')
 
         if np.isnan(y_train).any():
-            raise ValueError("y_train contains NaNs after conversion to numeric.")
+            raise ValueError("🚨 y_train contains NaNs after conversion to numeric.")
         if np.isnan(y_test).any():
-            raise ValueError("y_test contains NaNs after conversion to numeric.")
+            raise ValueError("🚨 y_test contains NaNs after conversion to numeric.")
 
+        print("📐 Applying log1p transformation to labels...")
         y_train_log = np.log1p(y_train)
         y_test_log = np.log1p(y_test)
 
         lgb_train = lgb.Dataset(X_train, label=y_train_log)
         lgb_eval = lgb.Dataset(X_test, label=y_test_log, reference=lgb_train)
 
+        print("🧠 Starting model training...")
         params = {
             'objective': 'regression',
             'metric': 'rmse',
@@ -68,6 +72,8 @@ class ModelTrainer:
             ],
         )
 
+        print("📊 Model training complete. Generating predictions...")
+
         y_test_pred_log = model.predict(X_test, num_iteration=model.best_iteration)
         y_test_pred = np.expm1(y_test_pred_log)
 
@@ -77,8 +83,11 @@ class ModelTrainer:
         y_test_true = np.expm1(y_test_log)
         y_train_true = np.expm1(y_train_log)
 
+        print(f"📍 Saving model to: {self.model_trainer_config.model_file_path}")
         save_model_as_joblib(self.model_trainer_config.model_file_path, model)
+        print("✅ Model saved successfully!")
 
+        print("🧪 Calculating evaluation metrics...")
         test_classification_metric = ClassificationMetric(
             rmsle_value=calculate_rmsle(y_test_true, y_test_pred),
             smape_value=calculate_smape(y_test_true, y_test_pred)
@@ -89,11 +98,12 @@ class ModelTrainer:
             smape_value=calculate_smape(y_train_true, y_train_pred)
         )
 
+        print("📦 Packaging model artifact...")
         model_trainer_artifact = ModelTrainerArtifact(
             trained_model_file_path=self.model_trainer_config.model_file_path,
             test_metrics=test_classification_metric,
             train_metrics=train_classification_metric
         )
 
+        print("🎉 Model training pipeline completed.")
         return model_trainer_artifact
-

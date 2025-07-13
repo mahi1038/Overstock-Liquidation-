@@ -96,20 +96,28 @@ const handleSubmit = async () => {
 };
 
 
-  const handleRunPrediction = () => {
-    setPrediction({
-      atRisk: 5,
-      riskLevel: 'High',
-      overstockData: [
-        { sku: 'SKU123', store: 'Store A', stock: 120, predicted: 60, confidence: '92%' },
-        { sku: 'SKU456', store: 'Store B', stock: 80, predicted: 30, confidence: '88%' },
-      ],
-      clusterData: [
-        { cluster: 'Bin 1', skus: 3, overstock: '60%' },
-        { cluster: 'Bin 2', skus: 2, overstock: '40%' },
-      ],
+  const handleRunPrediction = async () => {
+  try {
+    const response = await fetch('http://localhost:5050/run-prediction', {
+      method: 'POST',
     });
-  };
+
+    const data = await response.json();
+
+   if (data.status === 'success') {
+  setPrediction({
+    metrics: data.metrics || [],
+    // other mock data
+  });
+}
+ else {
+      console.error("Prediction error:", data.error);
+    }
+  } catch (error) {
+    console.error("Prediction failed:", error);
+  }
+};
+
 
   return (
     <Router>
