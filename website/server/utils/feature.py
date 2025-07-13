@@ -51,6 +51,12 @@ def compute_features_from_mongo(item_id: str, store_id: str, current_date):
         .transform(lambda x: x.eq(0).astype(int).groupby(x.ne(0).cumsum()).cumsum())
     )
 
+    df['price_pct_change'] = (
+        df.groupby('id')['sell_price']
+          .pct_change(fill_method=None)
+          .fillna(0)
+    )
+
     latest_row = df.iloc[-1]
 
     return {
@@ -58,4 +64,5 @@ def compute_features_from_mongo(item_id: str, store_id: str, current_date):
         "lag_28": int(latest_row['lag_28']) if pd.notna(latest_row['lag_28']) else 0,
         "rolling_mean_28": float(latest_row['rolling_mean_28']) if pd.notna(latest_row['rolling_mean_28']) else 0,
         "zero_streak": int(latest_row['zero_streak']) if pd.notna(latest_row['zero_streak']) else 0,
+        "price_pct_change": float(latest_row['price_pct_change']) if pd.notna(latest_row['price_pct_change']) else 0,
     }

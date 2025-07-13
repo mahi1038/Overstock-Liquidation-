@@ -70,6 +70,7 @@ def submit_input():
     "lag_7": features["lag_7"],
     "rolling_mean_28": features["rolling_mean_28"],
     "zero_streak": features["zero_streak"],
+    "price_pct_change": features["price_pct_change"],
     "created_at": now.isoformat()
     }
 
