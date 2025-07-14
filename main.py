@@ -1,10 +1,19 @@
 import pandas as pd
 import numpy as np
+import os
 from src.components.data_ingestion import DataIngestion
 from src.components.data_transformation import DataTransformation
 from src.components.model_trainer import ModelTrainer
 from src.entity.config import DataIngestionConfig, TrainingConfig, DataTransformationConfig, ModelTrainerConfig
 from datetime import datetime
+
+from src.components.smart_binning import (
+    run_smart_binning,
+    score_bins,
+    simulate_clearance,
+    suggest_clearance_strategy
+)
+
 
 if __name__ == '__main__':
     print("✅ Starting training pipeline")
@@ -26,6 +35,51 @@ if __name__ == '__main__':
     model_trainer = ModelTrainer(data_transformation_artifact, model_trainer_config)
     model_trainer_artifact = model_trainer.initiate_model_training()
     print("🤖 Model training complete")
+
+    # ─── SMART BINNING & CLEARANCE PIPELINE ────────────────────────────────────────
+    print("📦 Running Smart Binning")
+
+    # Loading the transformed  array DataFrame
+    train_npz = np.load(data_transformation_artifact.transformed_train_file_path)
+    key = train_npz.files[0]
+    train_arr = train_npz[key]  # or use the correct key if different
+
+    # 2) Split into features (all columns except last) and target (last column)
+    X = train_arr[:, :-1]
+    y = train_arr[:,  -1]
+
+    # 3) Recover column names (you saved these as feature_names.npy)
+    feature_names_path = os.path.join(
+        os.path.dirname(data_transformation_artifact.preprocessor_obj_file_path),
+        "feature_names.npy"
+    )
+    feature_names = np.load(feature_names_path, allow_pickle=True)
+
+    # 4) Building our DataFrame
+    df_transformed = pd.DataFrame(X, columns=feature_names)
+    df_transformed['sales_28_sum'] = y  # or whatever your target column is
+
+    # Clustering into bins
+    df_binned, clusterer = run_smart_binning(df_transformed, visualize=False)
+    binned_path = os.path.join(training_config.artifact_dir_path, 'smart_binning.csv')
+    df_binned.to_csv(binned_path, index=False)
+    print(f"✅ Smart Binning saved to {binned_path}")
+
+    # Score each bin
+    bin_scores = score_bins(df_binned)
+
+    # Suggesting clearance strategies
+    strategy_df = suggest_clearance_strategy(bin_scores)
+    strategy_path = os.path.join(training_config.artifact_dir_path, 'bin_strategy.csv')
+    strategy_df.to_csv(strategy_path, index=False)
+    print(f"✅ Bin strategies saved to {strategy_path}")
+
+    # Simulating clearance campaigns
+    campaign_df = simulate_clearance(df_binned, bin_scores)
+    campaign_path = os.path.join(training_config.artifact_dir_path, 'campaign_simulation.csv')
+    campaign_df.to_csv(campaign_path, index=False)
+    print(f"✅ Campaign simulation saved to {campaign_path}")
+
 
     print("📊 Metrics:")
     print("Test RMSLE:", model_trainer_artifact.test_metrics.rmsle_value)
