@@ -98,7 +98,7 @@ class ModelTrainer:
             smape_value=calculate_smape(y_train_true, y_train_pred)
         )
 
-        y_future = pd.DataFrame(y_train_pred)
+        y_future = pd.DataFrame(y_train_true)
         os.makedirs(os.path.dirname(self.model_trainer_config.trained_y), exist_ok=True)
         y_future.to_csv(self.model_trainer_config.trained_y, index=False)
 
