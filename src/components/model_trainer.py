@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
-from src.entity.config import ModelTrainerConfig
+from src.entity.config import ModelTrainerConfig, TrainingConfig, DataIngestionConfig
 from src.entity.artifact import DataTransformationArtifact, ClassificationMetric, ModelTrainerArtifact
 from src.utils.components_utils import save_model_as_joblib, calculate_rmsle, calculate_smape
 import lightgbm as lgb
@@ -98,11 +98,18 @@ class ModelTrainer:
             smape_value=calculate_smape(y_train_true, y_train_pred)
         )
 
+        y_future = pd.DataFrame(y_train_pred)
+        os.makedirs(os.path.dirname(self.model_trainer_config.trained_y), exist_ok=True)
+        y_future.to_csv(self.model_trainer_config.trained_y, index=False)
+
         print("📦 Packaging model artifact...")
+        
+
         model_trainer_artifact = ModelTrainerArtifact(
             trained_model_file_path=self.model_trainer_config.model_file_path,
             test_metrics=test_classification_metric,
-            train_metrics=train_classification_metric
+            train_metrics=train_classification_metric,
+            predicted_path=self.model_trainer_config.trained_y
         )
 
         print("🎉 Model training pipeline completed.")
