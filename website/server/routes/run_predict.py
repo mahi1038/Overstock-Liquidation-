@@ -28,110 +28,82 @@ run_prediction_bp = Blueprint('run_prediction_bp', __name__)
 @run_prediction_bp.route('/run-prediction', methods=['POST'])
 def run_prediction():
     try:
-        print("🚀 Starting run-prediction route...")
-
-        # 1️⃣ Step: Run training pipeline via main.py
-        script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../main.py'))
-        print(f"📍 Training script path: {script_path}")
-
-        if not os.path.exists(script_path):
-            print("❌ main.py not found.")
-            return jsonify({"status": "error", "error": f"Script not found at {script_path}"}), 404
-
-        print("🔧 Running training pipeline...")
-        result = subprocess.run([sys.executable, script_path], capture_output=True, text=True)
-        print("✅ Training script executed.")
-
-        if result.returncode != 0:
-            print(f"❌ Error in training: {result.stderr}")
-            return jsonify({"status": "error", "error": result.stderr}), 500
-
-        stdout_lines = result.stdout.strip().split("\n")
-        print("📜 Full stdout:")
-        for line in stdout_lines:
-            print(line)
-
-        metric_lines = [line for line in stdout_lines if any(m in line for m in ['RMSLE', 'SMAPE'])]
-        print(f"📊 Extracted Metrics: {metric_lines}")
-        # 2️⃣ Step: Fetch latest input from MongoDB
         print("📡 Connecting to MongoDB...")
-        
+
         mongo_uri = os.getenv("MONGODB_URI")
         client = MongoClient(mongo_uri)
         db = client["aioverstock"]
-        collection = db["user_inputs"]
+        collection = db["sales_data"]
 
-        latest_input = collection.find().sort([('_id', -1)]).limit(1)
-        latest_data = list(latest_input)
+        # ✅ Step 1: Fetch all records
+        data_cursor = collection.find()
+        raw_data = list(data_cursor)
 
-        if not latest_data:
-            print("❌ No data found in MongoDB.")
-            return jsonify({"status": "error", "error": "No input data found in MongoDB"}), 404
+        if not raw_data:
+            return jsonify({"status": "error", "error": "No data found in MongoDB"}), 404
 
-        print("✅ Retrieved latest input from MongoDB.")
-        input_df = pd.DataFrame([latest_data[0]])
-        input_df.drop(columns=["_id"], inplace=True, errors="ignore")
-        print("📄 Input DataFrame:")
-        print(input_df)
+        print(f"📄 Fetched {len(raw_data)} records")
 
-        # 3️⃣ Step: Load preprocessor.pkl
+        # ✅ Step 2: Convert to DataFrame and clean
+        df = pd.DataFrame(raw_data)
+        df.drop(columns=["_id", "sales", "sales_28_sum", "date"], inplace=True, errors="ignore")
 
-        # 1️⃣ Get the absolute path to the artifacts folder
+        # ✅ Step 3: Filter only required features for model
+        required_features = [
+            "item_id", "dept_id", "store_id", "state_id", "weekday", "month", "week_of_month",
+            "event_name_1", "event_type_1", "event_name_2", "event_type_2",
+            "snap_active", "sell_price", "lag_28", "lag_7", "rolling_mean_28",
+            "price_pct_change", "zero_streak"
+        ]
+        df = df[required_features]
+
+        print("📦 Cleaned input shape:", df.shape)
+
+        # ✅ Step 4: Load Preprocessor & Model
         base_artifacts_dir = os.path.abspath("artifacts")
-
-        # 2️⃣ Find all timestamped artifact folders inside /artifacts
         runs = sorted(
-        [f.path for f in os.scandir(base_artifacts_dir) if f.is_dir()],
-         reverse=True
+            [f.path for f in os.scandir(base_artifacts_dir) if f.is_dir()],
+            reverse=True
         )
-
         if not runs:
-         raise FileNotFoundError("❌ No artifact folders found in artifacts/ directory.")
+            raise FileNotFoundError("❌ No artifact folders found.")
 
-        # 3️⃣ Use the most recent run
         latest_run_dir = runs[0]
-        print(f"📁 Latest artifact run directory: {latest_run_dir}")
-
-         # 4️⃣ Construct full paths from this folder
         preprocessor_path = os.path.join(latest_run_dir, "data_tranformed", "preprocessor", "preprocessro.pkl")
-        model_path = os.path.join(latest_run_dir,"model_trainer", "model.pkl")
+        model_path = os.path.join(latest_run_dir, "model_trainer", "model.pkl")
 
-        print(f"🧪 Loading preprocessor from: {preprocessor_path}")
-        print(f"🤖 Loading model from: {model_path}")
-
-        print(f"🧪 Loading preprocessor from {preprocessor_path}")
-        if not os.path.exists(preprocessor_path):
-            print("❌ Preprocessor not found.")
-            return jsonify({"status": "error", "error": f"Preprocessor not found at {preprocessor_path}"}), 500
-
+        print("🧪 Loading preprocessor:", preprocessor_path)
         preprocessor = load(preprocessor_path)
 
-        print("🔄 Transforming input data...")
-        transformed_input = preprocessor.transform(input_df)
-        transformed_input = transformed_input.astype(np.float32)
-        print("✅ Input data transformed.")
-
-        # 4️⃣ Step: Load model.pkl and predict
-        print(f"🧠 Loading model from {model_path}")
-        if not os.path.exists(model_path):
-            print("❌ Model not found.")
-            return jsonify({"status": "error", "error": f"Model not found at {model_path}"}), 500
-
+        print("🤖 Loading model:", model_path)
         model = load(model_path)
 
-        print("📈 Running prediction...")
-        prediction_log = model.predict(transformed_input)
-        prediction = np.expm1(prediction_log)[0]  # inverse log1p
-        print(f"🎯 Prediction (actual scale): {prediction}")
+        # ✅ Step 5: Transform and Predict
+        print("🔄 Transforming data...")
+        transformed = preprocessor.transform(df).astype(np.float32)
 
-        # 5️⃣ Return response
-        print("✅ All steps completed. Returning result to frontend.")
+        print("📈 Running predictions...")
+        predictions_log = model.predict(transformed)
+        predictions = np.expm1(predictions_log)  # inverse of log1p
+
+        # ✅ Step 6: Return result
+        results = predictions.round(2).tolist()
+        print("🎯 Predictions generated")
+
+        # Let's say you want to return 3 columns only:
+        # ✅ Step 6: Return result
+        output_df = df[['item_id', 'store_id']].copy()
+        output_df['predicted_sales'] = predictions.round(2)
+
+        result = output_df.to_dict(orient="records")
+
         return jsonify({
-            "status": "success",
-            "metrics": metric_lines,
-            "prediction": round(prediction, 2)
-        })
+  "status": "success",
+  "data": result
+})
+
+
 
     except Exception as e:
-        print(f"❗ Exception occurred: {e}")
+        print(f"❗ Exception: {e}")
         return jsonify({"status": "error", "error": str(e)}), 500

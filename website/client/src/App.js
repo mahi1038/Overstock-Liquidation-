@@ -7,6 +7,10 @@ import PredictionResults from './components/PredictionResults';
 import StoreRiskMap from './components/StoreVisualize';
 import Login from './components/Login';
 import Signup from './components/Signup';
+import PredictionDashboard from './components/PredictionDashboard';
+import PredictionTable from './components/PredictionTable'; // update path if needed
+import RunBulkPrediction from './components/RunBulkPrediction';
+
 
 import { auth } from './firebase/config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
@@ -29,6 +33,10 @@ const [eventType2, setEventType2] = useState("NAN");
   const [editStock, setEditStock] = useState('');
   const [editPrice, setEditPrice] = useState('');
   const [prediction, setPrediction] = useState(null);
+  const [training, setTraining] = useState(false);
+  const [trainingDone, setTrainingDone] = useState(false);
+ const [predictionData, setPredictionData] = useState([]);
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, setUser);
@@ -94,9 +102,31 @@ const handleSubmit = async () => {
     alert("Submission failed.");
   }
 };
+const handleTrainModel = async () => {
+  setTraining(true);
+  setTrainingDone(false); // reset
+
+  try {
+    const response = await fetch('http://localhost:5050/train-model', {
+      method: 'POST',
+    });
+
+    const data = await response.json();
+    setTraining(false);
+
+    if (data.status === 'success') {
+      setTrainingDone(true);
+    } else {
+      console.error("Training failed:", data.error);
+    }
+  } catch (err) {
+    setTraining(false);
+    console.error("Training request failed:", err);
+  }
+};
 
 
-  const handleRunPrediction = async () => {
+const handleRunPrediction = async () => {
   try {
     const response = await fetch('http://localhost:5050/run-prediction', {
       method: 'POST',
@@ -104,13 +134,9 @@ const handleSubmit = async () => {
 
     const data = await response.json();
 
-   if (data.status === 'success') {
-  setPrediction({
-    metrics: data.metrics || [],
-    // other mock data
-  });
-}
- else {
+    if (data.status === 'success') {
+      setPredictionData(data.data); // ⬅️ this will update table directly
+    } else {
       console.error("Prediction error:", data.error);
     }
   } catch (error) {
@@ -195,11 +221,29 @@ const handleSubmit = async () => {
 
   handleSubmit={handleSubmit}
 />
+<PredictionDashboard />
 
-                  <PredictionResults
-                    prediction={prediction}
-                    handleRunPrediction={handleRunPrediction}
-                  />
+
+                 <PredictionResults
+  prediction={prediction}
+  handleRunPrediction={handleRunPrediction}
+  handleTrainModel={handleTrainModel}
+/>
+{training && (
+  <div className="mb-4 px-6 py-3 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-md shadow font-medium">
+    ⏳ Training model... please wait.
+  </div>
+)}
+
+{trainingDone && !training && (
+  <div className="mb-4 px-6 py-3 bg-green-100 text-green-800 border border-green-300 rounded-md shadow font-medium">
+    ✅ Model trained successfully! You may now run predictions.
+  </div>
+)}
+
+      <RunBulkPrediction />
+
+
 
                   {prediction && <StoreRiskMap storeData={storeData} />}
                 </div>
