@@ -4,9 +4,9 @@ import os
 Training variables
 """
 ARTIFACT_DIR_NAME = 'artifacts'
-CALENDAR_FILE_PATH = r"E:\environments\wallmart_hackathon\dataset\m5-forecasting-accuracy\calendar.csv"
-SALES_FILE_PATH = r"E:\environments\wallmart_hackathon\dataset\m5-forecasting-accuracy\sales_train_validation.csv"
-PRICES_FILE_PATH = r"E:\environments\wallmart_hackathon\dataset\m5-forecasting-accuracy\sell_prices.csv"
+CALENDAR_FILE_PATH = '/Users/tanishasonkar/Downloads/m5-forecasting-accuracy/calendar.csv'
+SALES_FILE_PATH = '/Users/tanishasonkar/Downloads/m5-forecasting-accuracy/sales_train_validation.csv'
+PRICES_FILE_PATH ='/Users/tanishasonkar/Downloads/m5-forecasting-accuracy/sell_prices.csv'
 TRAIN_FILE_NAME = 'train.csv'
 TEST_FILE_NAME = 'test.csv'
 TARGET_COLUMNS = 'sales_28_sum'

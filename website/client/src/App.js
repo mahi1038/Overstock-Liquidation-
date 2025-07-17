@@ -27,7 +27,7 @@ const [eventName2, setEventName2] = useState("NAN");
 const [eventType2, setEventType2] = useState("NAN");
 
   const [user, setUser] = useState(null);
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [sku, setSku] = useState('');
   const [skuData, setSkuData] = useState(null);
   const [editStock, setEditStock] = useState('');
@@ -142,19 +142,6 @@ const handleRunPrediction = async () => {
 
     if (runData.status === 'success') {
       console.log('✅ Prediction completed. Now fetching results from DB...');
-
-      const fetchRes = await fetch('http://localhost:5050/fetch-results?skip=0');
-      const fetchJson = await fetchRes.json();
-
-      if (fetchJson.status === 'success') {
-        setPredictionData(fetchJson.data);  // ✅ Send this to RunBulkPrediction
-        alert(`✅ ${fetchJson.data.length} predictions fetched.`);
-      } else {
-        console.error('❌ Fetch failed:', fetchJson.error);
-        alert('⚠️ Prediction ran, but fetching failed: ' + fetchJson.error);
-      }
-
-      setLastRunTime(new Date().toLocaleString());
     } else {
       console.error('❌ Prediction error:', runData.error);
       alert('❌ Prediction failed: ' + runData.error);
