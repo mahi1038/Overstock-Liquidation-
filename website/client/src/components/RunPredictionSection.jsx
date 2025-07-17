@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Column, Table, AutoSizer } from 'react-virtualized';
 import 'react-virtualized/styles.css';
 
-const RunBulkPrediction = ({ data }) => {
+const RunBulkPrediction = ({ data = [] }) => {
   const [sortField, setSortField] = useState('');
   const [sortDirection, setSortDirection] = useState('ASC');
   const [filter, setFilter] = useState('');

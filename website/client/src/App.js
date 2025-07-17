@@ -36,7 +36,8 @@ const [eventType2, setEventType2] = useState("NAN");
   const [training, setTraining] = useState(false);
   const [trainingDone, setTrainingDone] = useState(false);
  const [predictionData, setPredictionData] = useState([]);
-
+  const [isRunning, setIsRunning] = useState(false);        // ✅ Declare this
+  const [lastRunTime, setLastRunTime] = useState(null);     // ✅ And this
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, setUser);
@@ -127,20 +128,42 @@ const handleTrainModel = async () => {
 
 
 const handleRunPrediction = async () => {
+  setIsRunning(true);
   try {
-    const response = await fetch('http://localhost:5050/run-prediction', {
+    console.log('🚀 Starting prediction...');
+
+    const runResponse = await fetch('http://localhost:5050/run-prediction', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
 
-    const data = await response.json();
+    const runData = await runResponse.json();
+    console.log('📊 Prediction response:', runData);
 
-    if (data.status === 'success') {
-      setPredictionData(data.data); // ⬅️ this will update table directly
+    if (runData.status === 'success') {
+      console.log('✅ Prediction completed. Now fetching results from DB...');
+
+      const fetchRes = await fetch('http://localhost:5050/fetch-results?skip=0');
+      const fetchJson = await fetchRes.json();
+
+      if (fetchJson.status === 'success') {
+        setPredictionData(fetchJson.data);  // ✅ Send this to RunBulkPrediction
+        alert(`✅ ${fetchJson.data.length} predictions fetched.`);
+      } else {
+        console.error('❌ Fetch failed:', fetchJson.error);
+        alert('⚠️ Prediction ran, but fetching failed: ' + fetchJson.error);
+      }
+
+      setLastRunTime(new Date().toLocaleString());
     } else {
-      console.error("Prediction error:", data.error);
+      console.error('❌ Prediction error:', runData.error);
+      alert('❌ Prediction failed: ' + runData.error);
     }
   } catch (error) {
-    console.error("Prediction failed:", error);
+    console.error('💥 Network error:', error);
+    alert('💥 Network error: ' + error.message);
+  } finally {
+    setIsRunning(false);
   }
 };
 
@@ -241,7 +264,7 @@ const handleRunPrediction = async () => {
   </div>
 )}
 
-      <RunBulkPrediction />
+     <RunBulkPrediction data={predictionData} />
 
 
 
