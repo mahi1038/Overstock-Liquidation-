@@ -39,7 +39,7 @@ const [eventType2, setEventType2] = useState("NAN");
   const [isRunning, setIsRunning] = useState(false);        // ✅ Declare this
   const [lastRunTime, setLastRunTime] = useState(null);     // ✅ And this
 
-  useEffect(() => {
+    useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, setUser);
     return () => unsubscribe();
   }, []);
@@ -47,12 +47,13 @@ const [eventType2, setEventType2] = useState("NAN");
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      alert('Logged out successfully!');
+      // Using a more subtle notification approach
+      console.log('Logged out successfully!');
     } catch (err) {
-      alert('Error logging out: ' + err.message);
+      console.error('Error logging out:', err.message);
     }
   };
-
+  
   const mockSkuDB = {
     SKU123: { sku: 'SKU123', store: 'Store A', stock: 120, price: 15.99 },
     SKU456: { sku: 'SKU456', store: 'Store B', stock: 80, price: 12.49 },

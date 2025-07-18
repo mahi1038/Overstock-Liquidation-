@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Filter, ChevronDown, ChevronUp, TrendingUp, Package, DollarSign, BarChart3, RefreshCw, Download, Eye, EyeOff, Loader2, Moon, Sun } from 'lucide-react';
+import { Search, Filter, ChevronDown, ChevronUp, TrendingUp, Package, DollarSign, BarChart3, RefreshCw, Download, Loader2, Moon, Sun } from 'lucide-react';
 
 const InteractiveSalesDashboard = () => {
   const [data, setData] = useState([]);
@@ -19,7 +19,7 @@ const InteractiveSalesDashboard = () => {
   });
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedColumns, setSelectedColumns] = useState(new Set());
+  const [visibleColumns, setVisibleColumns] = useState(['store_id', 'item_id', 'sales', 'sell_price', ]);
 
   const fetchTableData = async (reset = false) => {
     setLoading(true);
@@ -141,24 +141,21 @@ const InteractiveSalesDashboard = () => {
   };
 
   const toggleColumn = (column) => {
-    setSelectedColumns(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(column)) {
-        newSet.delete(column);
+    setVisibleColumns(prev => {
+      if (prev.includes(column)) {
+        return prev.filter(col => col !== column);
       } else {
-        newSet.add(column);
+        return [...prev, column];
       }
-      return newSet;
     });
   };
 
-  const visibleColumns = data.length > 0 ? Object.keys(data[0]).filter(col => 
-    selectedColumns.size === 0 || selectedColumns.has(col)
-  ) : [];
+  const allColumns = data.length > 0 ? Object.keys(data[0]) : [];
+
 
   const themeClasses = {
-    bg: darkMode ? 'bg-gray-900' : 'bg-gray-50',
-    cardBg: darkMode ? 'bg-gray-800' : 'bg-white',
+     bg: darkMode ? 'custom-dark-bg' : 'bg-gray-50',
+    cardBg: darkMode ? 'bg-gray-800 bg-opacity-50 backdrop-blur-md' : 'bg-white',
     text: darkMode ? 'text-white' : 'text-gray-900',
     textSecondary: darkMode ? 'text-gray-300' : 'text-gray-600',
     border: darkMode ? 'border-gray-700' : 'border-gray-200',
@@ -168,322 +165,325 @@ const InteractiveSalesDashboard = () => {
     tableRow: darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50',
     tableBorder: darkMode ? 'divide-gray-700' : 'divide-gray-200'
   };
-
+  
   return (
-    <div className={`min-h-screen ${themeClasses.bg} p-6 transition-colors duration-300`}>
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className={`text-4xl font-bold ${themeClasses.text} mb-2`}>
-              <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                📊 Sales Analytics
-              </span>
-            </h1>
-            <p className={`${themeClasses.textSecondary} text-lg`}>
-              Interactive exploration of sales data with advanced filtering and insights
-            </p>
-          </div>
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className={`p-3 rounded-full ${themeClasses.cardBg} ${themeClasses.border} border shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105`}
-          >
-            {darkMode ? (
-              <Sun className="w-6 h-6 text-yellow-400" />
-            ) : (
-              <Moon className="w-6 h-6 text-gray-600" />
-            )}
-          </button>
-        </div>
+    <div
+  className={`min-h-screen transition-colors duration-300 ${themeClasses.bg}`}
+  style={
+    darkMode
+      ? {
+          backgroundImage: `
+            radial-gradient(ellipse at bottom left, rgba(40,0,60,0.1), transparent 70%),
+            radial-gradient(circle at top right, rgba(80,0,100,0.08), transparent 70%)`,
+          backgroundColor: '#0a0010',
+        }
+      : undefined
+  }
+>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className={`${themeClasses.cardBg} rounded-2xl shadow-lg p-6 border ${themeClasses.border} hover:shadow-xl transition-all duration-300 transform hover:scale-105`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`text-sm font-medium ${themeClasses.textSecondary}`}>Total Sales</p>
-                <p className={`text-3xl font-bold ${themeClasses.text} bg-gradient-to-r from-green-400 to-emerald-600 bg-clip-text text-transparent`}>
-                  {stats.totalSales.toLocaleString()}
-                </p>
-              </div>
-              <div className="p-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full">
-                <TrendingUp className="w-6 h-6 text-white" />
-              </div>
+      <div className="p-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Compact Header */}
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h1 className={`text-2xl font-bold ${themeClasses.text} mb-1`}>
+                <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                  Sales Analytics
+                </span>
+              </h1>
+              <p className={`${themeClasses.textSecondary} text-sm`}>
+                Interactive exploration of sales data
+              </p>
             </div>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className={`p-2 rounded-lg ${themeClasses.cardBg} ${themeClasses.border} border shadow hover:shadow-lg transition-all duration-300`}
+            >
+              {darkMode ? (
+                <Sun className="w-5 h-5 text-yellow-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-gray-600" />
+              )}
+            </button>
           </div>
-          
-          <div className={`${themeClasses.cardBg} rounded-2xl shadow-lg p-6 border ${themeClasses.border} hover:shadow-xl transition-all duration-300 transform hover:scale-105`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`text-sm font-medium ${themeClasses.textSecondary}`}>Avg Price</p>
-                <p className={`text-3xl font-bold ${themeClasses.text} bg-gradient-to-r from-blue-400 to-cyan-600 bg-clip-text text-transparent`}>
-                  ${stats.avgPrice.toFixed(2)}
-                </p>
-              </div>
-              <div className="p-3 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full">
-                <DollarSign className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          </div>
-          
-          <div className={`${themeClasses.cardBg} rounded-2xl shadow-lg p-6 border ${themeClasses.border} hover:shadow-xl transition-all duration-300 transform hover:scale-105`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`text-sm font-medium ${themeClasses.textSecondary}`}>Total Items</p>
-                <p className={`text-3xl font-bold ${themeClasses.text} bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent`}>
-                  {stats.totalItems}
-                </p>
-              </div>
-              <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full">
-                <Package className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          </div>
-          
-          <div className={`${themeClasses.cardBg} rounded-2xl shadow-lg p-6 border ${themeClasses.border} hover:shadow-xl transition-all duration-300 transform hover:scale-105`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`text-sm font-medium ${themeClasses.textSecondary}`}>Avg 7-Day Lag</p>
-                <p className={`text-3xl font-bold ${themeClasses.text} bg-gradient-to-r from-orange-400 to-red-600 bg-clip-text text-transparent`}>
-                  {stats.avgLag.toFixed(1)}
-                </p>
-              </div>
-              <div className="p-3 bg-gradient-to-r from-orange-500 to-red-600 rounded-full">
-                <BarChart3 className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Controls */}
-        <div className={`${themeClasses.cardBg} rounded-2xl shadow-lg p-6 mb-6 border ${themeClasses.border}`}>
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search across all fields..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className={`w-full pl-11 pr-4 py-3 ${themeClasses.input} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300`}
-                />
+          {/* Compact Stats Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+            <div className={`${themeClasses.cardBg}  rounded-lg shadow p-4 border ${themeClasses.border}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-xs font-medium ${themeClasses.textSecondary}`}>Total Sales</p>
+                  <p className={`text-lg font-bold ${themeClasses.text}`}>
+                    {stats.totalSales.toLocaleString()}
+                  </p>
+                </div>
+                <TrendingUp className="w-5 h-5 text-green-500" />
               </div>
             </div>
             
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-5 py-3 ${themeClasses.button} text-white rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105`}
-              >
-                <Filter className="w-4 h-4" />
-                Filters
-                {showFilters ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-              
-              <button
-                onClick={clearFilters}
-                className={`px-5 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105`}
-              >
-                Clear All
-              </button>
-              
-              <button
-                onClick={() => fetchTableData(true)}
-                className={`flex items-center gap-2 px-5 py-3 ${themeClasses.button} text-white rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105`}
-              >
-                <RefreshCw className="w-4 h-4" />
-                Refresh
-              </button>
-              
-              <button
-                onClick={() => fetchTableData(false)}
-                className={`flex items-center gap-2 px-5 py-3 ${themeClasses.button} text-white rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 ${
-                  loading ? 'opacity-70 cursor-not-allowed' : ''
-                }`}
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="animate-spin w-4 h-4" />
-                    Loading...
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-4 h-4" />
-                    Load More
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Filters Panel */}
-          {showFilters && (
-            <div className={`mt-6 pt-6 border-t ${themeClasses.border} animate-in slide-in-from-top-2 duration-300`}>
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className={`${themeClasses.cardBg} rounded-lg shadow p-4 border ${themeClasses.border}`}>
+              <div className="flex items-center justify-between">
                 <div>
-                  <label className={`block text-sm font-medium ${themeClasses.textSecondary} mb-2`}>Department</label>
-                  <select
-                    value={filters.dept}
-                    onChange={(e) => handleFilterChange('dept', e.target.value)}
-                    className={`w-full p-3 ${themeClasses.input} rounded-xl focus:ring-2 focus:ring-blue-500 transition-all duration-300`}
-                  >
-                    <option value="">All Departments</option>
-                    {getUniqueValues('dept').map(dept => (
-                      <option key={dept} value={dept}>{dept}</option>
-                    ))}
-                  </select>
+                  <p className={`text-xs font-medium ${themeClasses.textSecondary}`}>Avg Price</p>
+                  <p className={`text-lg font-bold ${themeClasses.text}`}>
+                    ${stats.avgPrice.toFixed(2)}
+                  </p>
                 </div>
-                
-                <div>
-                  <label className={`block text-sm font-medium ${themeClasses.textSecondary} mb-2`}>State</label>
-                  <select
-                    value={filters.state_id}
-                    onChange={(e) => handleFilterChange('state_id', e.target.value)}
-                    className={`w-full p-3 ${themeClasses.input} rounded-xl focus:ring-2 focus:ring-blue-500 transition-all duration-300`}
-                  >
-                    <option value="">All States</option>
-                    {getUniqueValues('state_id').map(state => (
-                      <option key={state} value={state}>{state}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className={`block text-sm font-medium ${themeClasses.textSecondary} mb-2`}>Event Type</label>
-                  <select
-                    value={filters.event_type_1}
-                    onChange={(e) => handleFilterChange('event_type_1', e.target.value)}
-                    className={`w-full p-3 ${themeClasses.input} rounded-xl focus:ring-2 focus:ring-blue-500 transition-all duration-300`}
-                  >
-                    <option value="">All Events</option>
-                    {getUniqueValues('event_type_1').map(type => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className={`block text-sm font-medium ${themeClasses.textSecondary} mb-2`}>SNAP Active</label>
-                  <select
-                    value={filters.snap_active}
-                    onChange={(e) => handleFilterChange('snap_active', e.target.value)}
-                    className={`w-full p-3 ${themeClasses.input} rounded-xl focus:ring-2 focus:ring-blue-500 transition-all duration-300`}
-                  >
-                    <option value="">All</option>
-                    <option value="1">Yes</option>
-                    <option value="0">No</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className={`block text-sm font-medium ${themeClasses.textSecondary} mb-2`}>Weekday</label>
-                  <select
-                    value={filters.weekday}
-                    onChange={(e) => handleFilterChange('weekday', e.target.value)}
-                    className={`w-full p-3 ${themeClasses.input} rounded-xl focus:ring-2 focus:ring-blue-500 transition-all duration-300`}
-                  >
-                    <option value="">All Days</option>
-                    {getUniqueValues('weekday').map(day => (
-                      <option key={day} value={day}>{day}</option>
-                    ))}
-                  </select>
-                </div>
+                <DollarSign className="w-5 h-5 text-blue-500" />
               </div>
             </div>
-          )}
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className={`mb-4 text-sm text-red-400 bg-red-900/20 border border-red-500/20 p-4 rounded-xl backdrop-blur-sm animate-in slide-in-from-top-2 duration-300`}>
-            ❌ {error}
+            
+            <div className={`${themeClasses.cardBg} rounded-lg shadow p-4 border ${themeClasses.border}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-xs font-medium ${themeClasses.textSecondary}`}>Total Items</p>
+                  <p className={`text-lg font-bold ${themeClasses.text}`}>
+                    {stats.totalItems}
+                  </p>
+                </div>
+                <Package className="w-5 h-5 text-purple-500" />
+              </div>
+            </div>
+            
+            <div className={`${themeClasses.cardBg} rounded-lg shadow p-4 border ${themeClasses.border}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-xs font-medium ${themeClasses.textSecondary}`}>Avg Lag</p>
+                  <p className={`text-lg font-bold ${themeClasses.text}`}>
+                    {stats.avgLag.toFixed(1)}
+                  </p>
+                </div>
+                <BarChart3 className="w-5 h-5 text-orange-500" />
+              </div>
+            </div>
           </div>
-        )}
 
-        {/* Column Selector */}
-        {data.length > 0 && (
-          <div className={`${themeClasses.cardBg} rounded-2xl shadow-lg p-6 mb-6 border ${themeClasses.border}`}>
-            <h3 className={`text-sm font-medium ${themeClasses.textSecondary} mb-4`}>Visible Columns:</h3>
-            <div className="flex flex-wrap gap-2">
-              {Object.keys(data[0]).map(column => (
+          {/* Compact Controls */}
+          <div className={`${themeClasses.cardBg} rounded-lg shadow p-4 mb-4 border ${themeClasses.border}`}>
+            <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-center justify-between">
+              <div className="flex-1 max-w-sm">
+                <div className="relative">
+                  <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className={`w-full pl-10 pr-4 py-2 text-sm ${themeClasses.input} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300`}
+                  />
+                </div>
+              </div>
+              
+              <div className="flex flex-wrap gap-2">
                 <button
-                  key={column}
-                  onClick={() => toggleColumn(column)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 ${
-                    selectedColumns.size === 0 || selectedColumns.has(column)
-                      ? `${themeClasses.button} text-white shadow-lg`
-                      : `${themeClasses.cardBg} ${themeClasses.textSecondary} border ${themeClasses.border}`
-                  }`}
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`flex items-center gap-2 px-4 py-2 text-sm ${themeClasses.button} text-white rounded-lg hover:shadow-lg transition-all duration-300`}
                 >
-                  {selectedColumns.size === 0 || selectedColumns.has(column) ? (
-                    <Eye className="w-3 h-3" />
-                  ) : (
-                    <EyeOff className="w-3 h-3" />
-                  )}
-                  {column}
+                  <Filter className="w-4 h-4" />
+                  Filters
+                  {showFilters ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                 </button>
-              ))}
+                
+                <button
+                  onClick={clearFilters}
+                  className={`px-4 py-2 text-sm bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-all duration-300`}
+                >
+                  Clear
+                </button>
+                
+                <button
+                  onClick={() => fetchTableData(true)}
+                  className={`flex items-center gap-2 px-4 py-2 text-sm ${themeClasses.button} text-white rounded-lg transition-all duration-300`}
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Refresh
+                </button>
+                
+                <button
+                  onClick={() => fetchTableData(false)}
+                  className={`flex items-center gap-2 px-4 py-2 text-sm ${themeClasses.button} text-white rounded-lg transition-all duration-300 ${
+                    loading ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="animate-spin w-4 h-4" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4" />
+                      Load More
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
-        )}
 
-        {/* Data Table */}
-        <div className={`${themeClasses.cardBg} rounded-2xl shadow-lg overflow-hidden border ${themeClasses.border}`}>
-          <div className={`p-6 border-b ${themeClasses.border}`}>
-            <h3 className={`text-xl font-semibold ${themeClasses.text}`}>
-              Sales Data ({filteredData.length} records)
-            </h3>
-          </div>
-          
-          <div className="overflow-x-auto max-h-96">
-            <table className="w-full">
-              <thead className={`${themeClasses.tableHeader} sticky top-0 z-10`}>
-                <tr>
-                  {visibleColumns.map(column => (
-                    <th
-                      key={column}
-                      className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer hover:bg-gray-600/50 transition-colors"
-                      onClick={() => handleSort(column)}
+            {/* Compact Filters Panel */}
+            {showFilters && (
+              <div className={`mt-4 pt-4 border-t ${themeClasses.border}`}>
+                <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+                  <div>
+                    <label className={`block text-xs font-medium ${themeClasses.textSecondary} mb-1`}>Department</label>
+                    <select
+                      value={filters.dept}
+                      onChange={(e) => handleFilterChange('dept', e.target.value)}
+                      className={`w-full p-2 text-sm ${themeClasses.input} rounded-lg focus:ring-2 focus:ring-blue-500 transition-all duration-300`}
                     >
-                      <div className="flex items-center gap-2">
-                        {column.replace(/_/g, ' ')}
-                        {sortConfig.key === column && (
-                          <span className="text-blue-400">
-                            {sortConfig.direction === 'asc' ? 
-                              <ChevronUp className="w-4 h-4" /> : 
-                              <ChevronDown className="w-4 h-4" />
-                            }
-                          </span>
-                        )}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className={`${themeClasses.cardBg} divide-y ${themeClasses.tableBorder}`}>
-                {filteredData.map((row, idx) => (
-                  <tr key={row._id || idx} className={`${themeClasses.tableRow} transition-colors`}>
-                    {visibleColumns.map(column => (
-                      <td key={column} className={`px-6 py-4 whitespace-nowrap text-sm ${themeClasses.text}`}>
-                        {column === 'dated' ? formatDate(row[column]) : 
-                         column === 'sell_price' ? `$${formatValue(row[column])}` :
-                         column === 'price_pct_change' ? `${(row[column] * 100).toFixed(1)}%` :
-                         formatValue(row[column])}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      <option value="">All</option>
+                      {getUniqueValues('dept').map(dept => (
+                        <option key={dept} value={dept}>{dept}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className={`block text-xs font-medium ${themeClasses.textSecondary} mb-1`}>State</label>
+                    <select
+                      value={filters.state_id}
+                      onChange={(e) => handleFilterChange('state_id', e.target.value)}
+                      className={`w-full p-2 text-sm ${themeClasses.input} rounded-lg focus:ring-2 focus:ring-blue-500 transition-all duration-300`}
+                    >
+                      <option value="">All</option>
+                      {getUniqueValues('state_id').map(state => (
+                        <option key={state} value={state}>{state}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className={`block text-xs font-medium ${themeClasses.textSecondary} mb-1`}>Event Type</label>
+                    <select
+                      value={filters.event_type_1}
+                      onChange={(e) => handleFilterChange('event_type_1', e.target.value)}
+                      className={`w-full p-2 text-sm ${themeClasses.input} rounded-lg focus:ring-2 focus:ring-blue-500 transition-all duration-300`}
+                    >
+                      <option value="">All</option>
+                      {getUniqueValues('event_type_1').map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className={`block text-xs font-medium ${themeClasses.textSecondary} mb-1`}>SNAP Active</label>
+                    <select
+                      value={filters.snap_active}
+                      onChange={(e) => handleFilterChange('snap_active', e.target.value)}
+                      className={`w-full p-2 text-sm ${themeClasses.input} rounded-lg focus:ring-2 focus:ring-blue-500 transition-all duration-300`}
+                    >
+                      <option value="">All</option>
+                      <option value="1">Yes</option>
+                      <option value="0">No</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className={`block text-xs font-medium ${themeClasses.textSecondary} mb-1`}>Weekday</label>
+                    <select
+                      value={filters.weekday}
+                      onChange={(e) => handleFilterChange('weekday', e.target.value)}
+                      className={`w-full p-2 text-sm ${themeClasses.input} rounded-lg focus:ring-2 focus:ring-blue-500 transition-all duration-300`}
+                    >
+                      <option value="">All</option>
+                      {getUniqueValues('weekday').map(day => (
+                        <option key={day} value={day}>{day}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-          
-          {filteredData.length === 0 && !loading && (
-            <div className={`text-center py-12 ${themeClasses.textSecondary}`}>
-              {data.length === 0 ? "No data loaded yet. Click refresh to fetch data." : "No data matches your current filters"}
+
+          {/* Error Message */}
+          {error && (
+            <div className={`mb-4 text-sm text-red-400 bg-red-900/20 border border-red-500/20 p-3 rounded-lg`}>
+              ❌ {error}
             </div>
           )}
+
+          {/* Main Content Layout */}
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Column Selector - Compact Sidebar */}
+            {data.length > 0 && (
+              <div className={`${themeClasses.cardBg} rounded-lg shadow border ${themeClasses.border} p-4 lg:w-64`}>
+                <h3 className={`text-sm font-medium ${themeClasses.textSecondary} mb-3`}>Visible Columns</h3>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {allColumns.map(column => (
+                    <label key={column} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={visibleColumns.includes(column)}
+                        onChange={() => toggleColumn(column)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className={`text-xs ${themeClasses.text}`}>{column}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Data Table - Compact */}
+            <div className={`${themeClasses.cardBg} rounded-lg shadow border ${themeClasses.border} flex-1`}>
+              <div className={`p-4 border-b ${themeClasses.border}`}>
+                <h3 className={`text-lg font-semibold ${themeClasses.text}`}>
+                  Sales Data ({filteredData.length} records)
+                </h3>
+              </div>
+              
+              <div className="overflow-x-auto max-h-80">
+                <table className="w-full">
+                  <thead className={`${themeClasses.tableHeader} sticky top-0 z-10`}>
+                    <tr>
+                      {visibleColumns.map(column => (
+                        <th
+                          key={column}
+                          className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer hover:bg-gray-600/50 transition-colors"
+                          onClick={() => handleSort(column)}
+                        >
+                          <div className="flex items-center gap-2">
+                            {column.replace(/_/g, ' ')}
+                            {sortConfig.key === column && (
+                              <span className="text-blue-400">
+                                {sortConfig.direction === 'asc' ? 
+                                  <ChevronUp className="w-3 h-3" /> : 
+                                  <ChevronDown className="w-3 h-3" />
+                                }
+                              </span>
+                            )}
+                          </div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className={`${themeClasses.cardBg} divide-y ${themeClasses.tableBorder}`}>
+                    {filteredData.map((row, idx) => (
+                      <tr key={row._id || idx} className={`${themeClasses.tableRow} transition-colors`}>
+                        {visibleColumns.map(column => (
+                          <td key={column} className={`px-4 py-3 whitespace-nowrap text-sm ${themeClasses.text}`}>
+                            { 
+                             column === 'sell_price' ? `$${formatValue(row[column])}` :
+                             column === 'price_pct_change' ? `${(row[column] * 100).toFixed(1)}%` :
+                             formatValue(row[column])}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              {filteredData.length === 0 && !loading && (
+                <div className={`text-center py-8 ${themeClasses.textSecondary}`}>
+                  {data.length === 0 ? "No data loaded yet. Click refresh to fetch data." : "No data matches your current filters"}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

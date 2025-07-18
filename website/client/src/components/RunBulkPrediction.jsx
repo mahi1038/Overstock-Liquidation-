@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, ScatterPlot, Scatter } from 'recharts';
+import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,Legend, } from 'recharts';
+
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, ScatterPlot} from 'recharts';
 import { TrendingUp, TrendingDown, DollarSign, Package, Calendar, Activity, Filter, Search, Download, RefreshCw } from 'lucide-react';
 
 // Enhanced PredictionTable component with charts
@@ -84,11 +86,12 @@ const PredictionDashboard = ({ data }) => {
     const stores = Array.from(storeMap.values()).slice(0, 10);
     
     // Price vs Prediction scatter
-    const priceVsPrediction = data.slice(0, 100).map(item => ({
-      price: item.sell_price || 0,
-      prediction: item.predicted_sales || 0,
-      change: item.price_pct_change || 0
-    }));
+   const priceVsPrediction = data.slice(0, 100).map(item => ({
+  itemId: item.item_id || 'Unknown',
+  sales28: item.sales_28_sum || 0,
+  prediction: item.predicted_sales || 0
+}));
+
     
     return { timeline, distribution: distributionBuckets, stores, priceVsPrediction };
   }, [data]);
@@ -245,35 +248,62 @@ const PredictionDashboard = ({ data }) => {
           {/* Price vs Prediction Scatter */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-orange-600" />
-              Price vs Prediction Correlation
-            </h3>
+  <TrendingUp className="w-5 h-5 text-orange-600" />
+  28-Day Sales vs Predicted Sales
+</h3>
+
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={chartData.priceVsPrediction}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="price" stroke="#666" fontSize={12} label={{ value: 'Price ($)', position: 'insideBottom', offset: -5 }} />
-                <YAxis stroke="#666" fontSize={12} label={{ value: 'Predicted Sales', angle: -90, position: 'insideLeft' }} />
-                <Tooltip 
-                  contentStyle={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                  }}
-                  formatter={(value, name) => [
-                    name === 'prediction' ? `${value.toFixed(2)} units` : `${value.toFixed(2)}`,
-                    name === 'prediction' ? 'Predicted Sales' : 'Price'
-                  ]}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="prediction" 
-                  stroke="#F59E0B" 
-                  strokeWidth={2}
-                  dot={{ fill: '#F59E0B', strokeWidth: 2, r: 3 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+<LineChart
+  width={500}
+  height={300}
+  data={chartData.priceVsPrediction}
+  margin={{ top: 20, right: 30, left: 20, bottom: 50 }} // more bottom space
+>
+  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+
+ <XAxis
+  dataKey="itemId"
+/>
+
+
+
+  <YAxis
+    stroke="#666"
+    fontSize={12}
+    tick={{ fill: '#666', fontSize: 12 }}
+    label={{
+      value: 'Sales',
+      angle: -90,
+      position: 'insideLeft',
+      offset: 10,
+      style: { fill: '#666', fontSize: 12 }
+    }}
+  />
+
+  <Tooltip />
+
+  <Legend verticalAlign="top" />
+
+  <Line
+    type="monotone"
+    dataKey="sales28"
+    stroke="#3B82F6"
+    strokeWidth={2}
+    dot={false}
+    name="28-Day Sales"
+  />
+  <Line
+    type="monotone"
+    dataKey="prediction"
+    stroke="#F59E0B"
+    strokeWidth={2}
+    dot={false}
+    name="Predicted Sales"
+  />
+</LineChart>
+
+</ResponsiveContainer>
+
           </div>
         </div>
 
