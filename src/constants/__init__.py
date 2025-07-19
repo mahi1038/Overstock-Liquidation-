@@ -4,9 +4,9 @@ import os
 Training variables
 """
 ARTIFACT_DIR_NAME = 'artifacts'
-CALENDAR_FILE_PATH = '/Users/tanishasonkar/Downloads/m5-forecasting-accuracy/calendar.csv'
-SALES_FILE_PATH = '/Users/tanishasonkar/Downloads/m5-forecasting-accuracy/sales_train_validation.csv'
-PRICES_FILE_PATH ='/Users/tanishasonkar/Downloads/m5-forecasting-accuracy/sell_prices.csv'
+CALENDAR_FILE_PATH = r"E:\environments\wallmart_hackathon\dataset\m5-forecasting-accuracy\calendar.csv"
+SALES_FILE_PATH = r'E:\environments\wallmart_hackathon\dataset\m5-forecasting-accuracy\sales_train_validation.csv'
+PRICES_FILE_PATH =r"E:\environments\wallmart_hackathon\dataset\m5-forecasting-accuracy\sell_prices.csv"
 TRAIN_FILE_NAME = 'train.csv'
 TEST_FILE_NAME = 'test.csv'
 TARGET_COLUMNS = 'sales_28_sum'
@@ -35,4 +35,12 @@ MODEL_TRAINER_DIR_NAME = 'model_trainer'
 MODEL_TRAINER_BEST_MODEL_FILE_NAME = 'model.pkl'
 MODEL_TRAINER_SB_DATAFRAME_FILE_NAME = 'sb_dataframe.csv'
 PREDICTED_TRAIN =   'predicted.csv'
+SMART_BINNING_DATAFRAME = 'smart_binning_daframe'
 
+
+"""
+smart binning variable
+"""
+
+SMART_BINNING_DIR_NAME = 'smart_binning'
+SMART_BINNING_OUTPUT_FILE_NAME = 'smart_binning_output.csv'

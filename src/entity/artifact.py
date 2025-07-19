@@ -24,5 +24,10 @@ class ModelTrainerArtifact:
         self.test_metrics = test_metrics
         self.predicted_path = predicted_path
 
+class SmartBinningArtifact:
+    def __init__(self, smart_binning_output_file_path, summary_dataframe):
+        self.smart_binning_output_file_path = smart_binning_output_file_path
+        self.summary_dataframe = summary_dataframe
+
     
         

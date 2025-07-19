@@ -39,7 +39,7 @@ if __name__ == '__main__':
    
     # Defining paths for input SB dataframe and output artifacts directory
     input_csv  = data_ingestion_artifact.train_path     # e.g., 'artifacts/sb_dataframe.csv'
-    output_dir = data_ingestion_config.artifact_dir     # same 'artifacts/' folder
+    output_dir = data_ingestion_artifact.output_dir  # same 'artifacts/' folder
 
     # this function should read input_csv, generate summary files, and write them into output_dir
     run_smart_binning(input_csv, output_dir)
