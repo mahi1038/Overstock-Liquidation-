@@ -136,19 +136,15 @@ def save_model_as_joblib(filepath: str, obj: object):
     os.makedirs(os.path.dirname(filepath), exist_ok = True)
     joblib.dump(obj, filepath)
 
+
 def calculate_rmsle(y_true, y_pred):
     y_pred_clipped = np.maximum(y_pred, 0)
     y_test_clipped = np.maximum(y_true, 0)
     rmsle = np.sqrt(mean_squared_log_error(y_test_clipped, y_pred_clipped))
     return rmsle
 
+
 def calculate_smape(y_true, y_pred):
     return 100 * np.mean(
         2 * np.abs(y_pred - y_true) / (np.abs(y_true) + np.abs(y_pred) + 1e-8)
     )
-
-
-
-
-
-

@@ -25,6 +25,7 @@ class DataTransformationConfig:
         self.transformed_train_path = os.path.join(self.data_transformation_dir_path, constants.TRAIN_FILE_NAME.replace('csv', 'npz'))
         self.transformed_test_path = os.path.join(self.data_transformation_dir_path, constants.TEST_FILE_NAME.replace('csv', 'npz'))
         self.preprocessor_obj_file_path = os.path.join(self.data_transformation_dir_path, constants.PREPROCESSOR_DIR_NAME, constants.PREPROCESSOR_OBJECT_FILE_NAME)
+        self.feature_name_file_path = os.path.join(self.data_transformation_dir_path, constants.DATA_TRANSFORMATION_FEATURE_NAME_FILE)
         self.target_column = constants.TARGET_COLUMNS
 
 

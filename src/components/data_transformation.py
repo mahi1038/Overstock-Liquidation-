@@ -145,14 +145,15 @@ class DataTransformation:
         save_object_pkl(self.data_transformation_config.preprocessor_obj_file_path, pipeline)
         print('saved the objects')
 
-        feature_names_path = os.path.join(os.path.dirname(self.data_transformation_config.preprocessor_obj_file_path), "feature_names.npy")
-        np.save(feature_names_path, np.array(X_train_df.columns))
+        feature_names = list(train_df.columns)
+        np.save(self.data_transformation_config.feature_name_file_path, feature_names)
         print(X_train_df.columns)
 
         data_transformation_artifact = DataTransformationArtifact(
             transformed_train_file_path=self.data_transformation_config.transformed_train_path,
             transformed_test_file_path=self.data_transformation_config.transformed_test_path,
-            preprocessor_obj_file_path=self.data_transformation_config.preprocessor_obj_file_path
+            preprocessor_obj_file_path=self.data_transformation_config.preprocessor_obj_file_path,
+            feature_file_path=self.data_transformation_config.feature_name_file_path    
         )
         print('returned data transformation artifact')
 

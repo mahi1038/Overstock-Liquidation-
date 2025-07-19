@@ -24,6 +24,7 @@ DATA_TRANSFORMATION_DIR_NAME = 'data_tranformed'
 DATA_TRANSFORMATION_OBJ_DIR_NAME = 'transformed_object'
 PREPROCESSOR_DIR_NAME = 'preprocessor'
 PREPROCESSOR_OBJECT_FILE_NAME = 'preprocessro.pkl'
+DATA_TRANSFORMATION_FEATURE_NAME_FILE = 'features.npy'
 
 
 """
@@ -34,5 +35,4 @@ MODEL_TRAINER_DIR_NAME = 'model_trainer'
 MODEL_TRAINER_BEST_MODEL_FILE_NAME = 'model.pkl'
 MODEL_TRAINER_SB_DATAFRAME_FILE_NAME = 'sb_dataframe.csv'
 PREDICTED_TRAIN =   'predicted.csv'
-
 

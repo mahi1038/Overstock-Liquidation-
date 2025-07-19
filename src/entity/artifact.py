@@ -6,10 +6,11 @@ class DataIngestionArtifact:
         self.test_path = test_path
 
 class DataTransformationArtifact:
-    def __init__(self, transformed_train_file_path, transformed_test_file_path, preprocessor_obj_file_path):
+    def __init__(self, transformed_train_file_path, transformed_test_file_path, preprocessor_obj_file_path, feature_file_path):
         self.transformed_train_file_path = transformed_train_file_path
         self.transformed_test_file_path = transformed_test_file_path
         self.preprocessor_obj_file_path = preprocessor_obj_file_path
+        self.feature_name_file_path = feature_file_path
 
 class ClassificationMetric:
     def __init__(self, rmsle_value, smape_value):
