@@ -91,10 +91,10 @@ class SmartBinning:
         df.loc[mask, 'discount']       = 0.30
 
         # 8) WRITE OUT ARTIFACTS
-        os.makedirs(os.path.dirname(self.smart_binning_config.smart_binning_output_filepath), exist_ok=True)
+        os.makedirs(os.path.dirname(self.smart_binning_config.smart_binning_smart_bins_file_path), exist_ok=True)
         # full detail
         df.to_csv(
-            os.path.join(self.smart_binning_config.smart_binning_output_filepath, 'smart_bins_full.csv'),
+            self.smart_binning_config.smart_binning_smart_bins_file_path,
             index=False
         )
 
@@ -112,19 +112,20 @@ class SmartBinning:
         summary['avg_overstock_pct'] = (summary['avg_overstock'] * 100).round(1)
 
         summary.to_csv(
-            os.path.join(self.config.output_path, 'smart_bins_summary.csv'),
+            self.smart_binning_config.smart_binning_summary_file_path,
             index=False
         )
         summary[['clubbed_bins','suitable_discount','priority_score','avg_overstock_pct']].to_csv(
-            os.path.join(self.config.output_path, 'strategies.csv'),
+            self.smart_binning_config.smart_binning_strategies_file_path,
             index=False
         )
 
-        smart_binning_artifact = SmartBinningArtifact(smart_binning_output_file_path=self.smart_binning_config.smart_binning_output_filepath,
-                                                      summary_dataframe=summary)
+        smart_binning_artifact = SmartBinningArtifact(smart_binning_smart_bins=self.smart_binning_config.smart_binning_smart_bins_file_path,
+                                                      smart_binning_strategies=self.smart_binning_config.smart_binning_summary_file_path,
+                                                      smart_binning_summary=self.smart_binning_config.smart_binning_strategies_file_path)
         
 
-        print(f"✅ Smart‑binning artifacts written to {self.config.output_path}")
+        print(f"✅ Smart‑binning artifacts saved")
 
         return smart_binning_artifact
 

@@ -1,12 +1,13 @@
 import pandas as pd
 import numpy as np
 import os
+from src.components.smart_bin import SmartBinning, SmartBinningConfig
 from src.components.data_ingestion import DataIngestion
 from src.components.data_transformation import DataTransformation
 from src.components.model_trainer_2 import ModelTrainer
 from src.entity.config import DataIngestionConfig, TrainingConfig, DataTransformationConfig, ModelTrainerConfig
 from datetime import datetime
-from src.components.smart_bin import run_smart_binning
+from src.components.smart_bin import SmartBinning
 
 if __name__ == '__main__':
     print("✅ Starting training pipeline")
@@ -29,22 +30,15 @@ if __name__ == '__main__':
     model_trainer = ModelTrainer(data_transformation_artifact, model_trainer_config)
     model_trainer_artifact = model_trainer.initiate_model_training()
     print("🤖 Model training complete")
-    # y_future = pd.read_csv(model_trainer_artifact.predicted_path)
-    #sb_dataframe.drop(columns = ['sales_28_sum'], axis = 1, inplace=True)
-    #sb_dataframe['future_sales'] = y_future
 
+    input_path  = data_ingestion_artifact.train_path
+    input_df = pd.read_csv(input_path)
 
-   # ─── SMART‑BINNING ─────────────────────────────────────────────────────────
-   # Once sb_dataframe.csv exists in artifacts, run your smart_bin.py logic:
-   
-    # Defining paths for input SB dataframe and output artifacts directory
-    input_csv  = data_ingestion_artifact.train_path     # e.g., 'artifacts/sb_dataframe.csv'
-    output_dir = data_ingestion_artifact.output_dir  # same 'artifacts/' folder
+    smart_binning_config = SmartBinningConfig(training_config)
+    smart_binning = SmartBinning(input_df, smart_binning_config)
+    smart_binning_artifact = smart_binning.run()
+    print('smart binning completed')
 
-    # this function should read input_csv, generate summary files, and write them into output_dir
-    run_smart_binning(input_csv, output_dir)
-    print("📊 Smart‑binning complete: smart_bins_summary.csv, strategies.csv saved to", output_dir)
-    # ─────────────────────────────────────────────────────────────────────────────
 
 
 

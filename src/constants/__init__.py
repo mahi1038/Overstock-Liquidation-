@@ -43,4 +43,6 @@ smart binning variable
 """
 
 SMART_BINNING_DIR_NAME = 'smart_binning'
-SMART_BINNING_OUTPUT_FILE_NAME = 'smart_binning_output.csv'
+SMART_BINNING_SMART_BINS_FILE_NAME = 'smart_bins.csv'
+SMART_BINNING_SUMMARY_FILE_NAME = 'smart_bins_summary.csv'
+SMART_BINNING_STRATEGIES_FILE_NAME = 'strategies.csv'
