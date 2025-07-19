@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-from src.components.smart_binning import SmartBinning, SmartBinningConfig
+from src.components.smart_bin import SmartBinning, SmartBinningConfig
 from src.components.data_ingestion import DataIngestion
 from src.components.data_transformation import DataTransformation
 from src.components.model_trainer_2 import ModelTrainer
