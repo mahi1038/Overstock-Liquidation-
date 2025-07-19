@@ -5,7 +5,7 @@ const PredictionTable = ({ data }) => {
   if (!data || data.length === 0) return <p className="text-gray-400">No predictions found.</p>;
 
   return (
-    <div className="w-full max-w-4xl rounded-xl shadow-lg bg-white border border-gray-200 overflow-hidden">
+    <div className="w-full max-w-6xl rounded-xl shadow-lg bg-white border border-gray-200 overflow-hidden">
       <div className="overflow-auto max-h-96">
         <table className="w-full text-sm">
           <thead className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-900 sticky top-0 z-10">

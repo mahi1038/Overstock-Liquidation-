@@ -29,7 +29,7 @@ run_prediction_bp = Blueprint('run_prediction_bp', __name__)
 def run_prediction():
     try:
         print("📡 Connecting to MongoDB...")
-
+        '''
         mongo_uri = os.getenv("MONGODB_URI")
         client = MongoClient(mongo_uri)
         db = client["aioverstock"]
@@ -89,17 +89,28 @@ def run_prediction():
         # ✅ Step 6: Return result
         results = predictions.round(2).tolist()
         print("🎯 Predictions generated")
+                # ✅ Step 6.5: Store the results in a new collection
+        print("💾 Storing predictions in 'predicted_sales' collection...")
+        predicted_collection = db["predicted_sales"]
 
-        # Let's say you want to return 3 columns only:
-        # ✅ Step 6: Return result
-        output_df = df[['item_id', 'store_id']].copy()
-        output_df['predicted_sales'] = predictions.round(2)
+        # Merge original + predicted (excluding internal Mongo _id)
+        merged_data = []
+        for original, pred in zip(raw_data, results):
+            merged_doc = {k: v for k, v in original.items() if k != '_id'}
+            merged_doc['predicted_sales'] = pred
+            merged_data.append(merged_doc)
 
-        result = output_df.to_dict(orient="records")
+        # Optional: clear old predictions first
+        predicted_collection.delete_many({})  # if you want a fresh store every time
 
+        # Insert all predictions
+        predicted_collection.insert_many(merged_data)
+        print(f"✅ Inserted {len(merged_data)} predicted documents into 'predicted_sales'")
+
+        # Let's say you want to return 3 columns only
+'''
         return jsonify({
   "status": "success",
-  "data": result
 })
 
 

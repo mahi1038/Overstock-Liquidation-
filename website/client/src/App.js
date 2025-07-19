@@ -27,7 +27,7 @@ const [eventName2, setEventName2] = useState("NAN");
 const [eventType2, setEventType2] = useState("NAN");
 
   const [user, setUser] = useState(null);
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [sku, setSku] = useState('');
   const [skuData, setSkuData] = useState(null);
   const [editStock, setEditStock] = useState('');
@@ -36,9 +36,10 @@ const [eventType2, setEventType2] = useState("NAN");
   const [training, setTraining] = useState(false);
   const [trainingDone, setTrainingDone] = useState(false);
  const [predictionData, setPredictionData] = useState([]);
+  const [isRunning, setIsRunning] = useState(false);        // ✅ Declare this
+  const [lastRunTime, setLastRunTime] = useState(null);     // ✅ And this
 
-
-  useEffect(() => {
+    useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, setUser);
     return () => unsubscribe();
   }, []);
@@ -46,12 +47,13 @@ const [eventType2, setEventType2] = useState("NAN");
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      alert('Logged out successfully!');
+      // Using a more subtle notification approach
+      console.log('Logged out successfully!');
     } catch (err) {
-      alert('Error logging out: ' + err.message);
+      console.error('Error logging out:', err.message);
     }
   };
-
+  
   const mockSkuDB = {
     SKU123: { sku: 'SKU123', store: 'Store A', stock: 120, price: 15.99 },
     SKU456: { sku: 'SKU456', store: 'Store B', stock: 80, price: 12.49 },
@@ -127,20 +129,29 @@ const handleTrainModel = async () => {
 
 
 const handleRunPrediction = async () => {
+  setIsRunning(true);
   try {
-    const response = await fetch('http://localhost:5050/run-prediction', {
+    console.log('🚀 Starting prediction...');
+
+    const runResponse = await fetch('http://localhost:5050/run-prediction', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
 
-    const data = await response.json();
+    const runData = await runResponse.json();
+    console.log('📊 Prediction response:', runData);
 
-    if (data.status === 'success') {
-      setPredictionData(data.data); // ⬅️ this will update table directly
+    if (runData.status === 'success') {
+      console.log('✅ Prediction completed. Now fetching results from DB...');
     } else {
-      console.error("Prediction error:", data.error);
+      console.error('❌ Prediction error:', runData.error);
+      alert('❌ Prediction failed: ' + runData.error);
     }
   } catch (error) {
-    console.error("Prediction failed:", error);
+    console.error('💥 Network error:', error);
+    alert('💥 Network error: ' + error.message);
+  } finally {
+    setIsRunning(false);
   }
 };
 
@@ -241,7 +252,7 @@ const handleRunPrediction = async () => {
   </div>
 )}
 
-      <RunBulkPrediction />
+     <RunBulkPrediction data={predictionData} />
 
 
 

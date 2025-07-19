@@ -7,12 +7,12 @@ from src.components.model_trainer import ModelTrainer
 from src.entity.config import DataIngestionConfig, TrainingConfig, DataTransformationConfig, ModelTrainerConfig
 from datetime import datetime
 
-from src.components.smart_binning import (
+'''from src.components.smart_binning import (
     run_smart_binning,
     score_bins,
     simulate_clearance,
     suggest_clearance_strategy
-)
+)'''
 
 
 if __name__ == '__main__':
@@ -36,6 +36,7 @@ if __name__ == '__main__':
     model_trainer = ModelTrainer(data_transformation_artifact, model_trainer_config)
     model_trainer_artifact = model_trainer.initiate_model_training()
     print("🤖 Model training complete")
+    '''
     y_future = pd.read_csv(model_trainer_artifact.predicted_path)
     sb_dataframe.drop(columns = ['sales_28_sum'], axis = 1, inplace=True)
     sb_dataframe['future_sales'] = y_future
@@ -100,4 +101,4 @@ if __name__ == '__main__':
     # print("Test RMSLE:", model_trainer_artifact.test_metrics.rmsle_value)
     # print("Test SMAPE:", model_trainer_artifact.test_metrics.smape_value)
     # print("Train RMSLE:", model_trainer_artifact.train_metrics.rmsle_value)
-    # print("Train SMAPE:", model_trainer_artifact.train_metrics.smape_value)
+    # print("Train SMAPE:", model_trainer_artifact.train_metrics.smape_value)'''

@@ -19,7 +19,7 @@ def fetch_table_data():
         # Get skip value from query params
         skip = int(request.args.get("skip", 0))
 
-        data_cursor = collection.find().sort("created_at", -1).skip(skip).limit(50)
+        data_cursor = collection.find().sort("created_at", -1).skip(skip).limit(1000)
         data = []
 
         def clean(doc):
