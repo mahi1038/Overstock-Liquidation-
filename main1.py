@@ -6,6 +6,7 @@ from src.components.data_transformation import DataTransformation
 from src.components.model_trainer_2 import ModelTrainer
 from src.entity.config import DataIngestionConfig, TrainingConfig, DataTransformationConfig, ModelTrainerConfig
 from datetime import datetime
+from src.components.smart_bin import run_smart_binning
 
 if __name__ == '__main__':
     print("✅ Starting training pipeline")
@@ -31,6 +32,20 @@ if __name__ == '__main__':
     # y_future = pd.read_csv(model_trainer_artifact.predicted_path)
     #sb_dataframe.drop(columns = ['sales_28_sum'], axis = 1, inplace=True)
     #sb_dataframe['future_sales'] = y_future
+
+
+   # ─── SMART‑BINNING ─────────────────────────────────────────────────────────
+   # Once sb_dataframe.csv exists in artifacts, run your smart_bin.py logic:
+   
+    # Defining paths for input SB dataframe and output artifacts directory
+    input_csv  = data_ingestion_artifact.train_path     # e.g., 'artifacts/sb_dataframe.csv'
+    output_dir = data_ingestion_config.artifact_dir     # same 'artifacts/' folder
+
+    # this function should read input_csv, generate summary files, and write them into output_dir
+    run_smart_binning(input_csv, output_dir)
+    print("📊 Smart‑binning complete: smart_bins_summary.csv, strategies.csv saved to", output_dir)
+    # ─────────────────────────────────────────────────────────────────────────────
+
 
 
 
