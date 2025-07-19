@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+from src.components.smart_binning import SmartBinning, SmartBinningConfig
 from src.components.data_ingestion import DataIngestion
 from src.components.data_transformation import DataTransformation
 from src.components.model_trainer_2 import ModelTrainer
@@ -42,7 +43,10 @@ if __name__ == '__main__':
     output_dir = data_ingestion_config.artifact_dir     # same 'artifacts/' folder
 
     # this function should read input_csv, generate summary files, and write them into output_dir
-    run_smart_binning(input_csv, output_dir)
+    # after training produces sb_dataframe.csv as a DataFrame `sb_df`:
+    config = SmartBinningConfig(output_path=data_ingestion_config.artifact_dir, n_clusters=15)
+    binner = SmartBinning(input_data_frame=sb_df, smart_binning_config=config)
+    binner.run()
     print("📊 Smart‑binning complete: smart_bins_summary.csv, strategies.csv saved to", output_dir)
     # ─────────────────────────────────────────────────────────────────────────────
 
