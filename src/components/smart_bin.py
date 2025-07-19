@@ -1,3 +1,5 @@
+# src/components/smart_binning.py
+import os
 import pandas as pd
 import numpy as np
 import os
@@ -29,7 +31,18 @@ class SmartBinning:
                     'event_type_1','event_type_2','snap_active']
         ohe = OneHotEncoder(dtype='uint8', handle_unknown='ignore')
         X_cat = ohe.fit_transform(df[cat_cols])
+        # 2) CATEGORICAL ENCODING
+        cat_cols = ['dept_id','store_id','state_id','weekday',
+                    'event_type_1','event_type_2','snap_active']
+        ohe = OneHotEncoder(dtype='uint8', handle_unknown='ignore')
+        X_cat = ohe.fit_transform(df[cat_cols])
 
+        # 3) NUMERIC FEATURES & SCALING
+        num_cols = ['overstock_score','days_of_supply','turnover_rate_28',
+                    'price_pct_change','lag_28','lag_7','rolling_mean_28','zero_streak']
+        X_num = df[num_cols].fillna(0).values
+        scaler = StandardScaler()
+        X_num_scaled = scaler.fit_transform(X_num)
         # 3) NUMERIC FEATURES & SCALING
         num_cols = ['overstock_score','days_of_supply','turnover_rate_28',
                     'price_pct_change','lag_28','lag_7','rolling_mean_28','zero_streak']
@@ -41,7 +54,18 @@ class SmartBinning:
         X = hstack([csr_matrix(X_num_scaled), X_cat], format='csr')
         svd = TruncatedSVD(n_components=20, random_state=0)
         X_reduced = svd.fit_transform(X)
+        # 4) STACK & DIM‑REDUCE
+        X = hstack([csr_matrix(X_num_scaled), X_cat], format='csr')
+        svd = TruncatedSVD(n_components=20, random_state=0)
+        X_reduced = svd.fit_transform(X)
 
+        # 5) CLUSTERING INTO BINS
+        mbk = MiniBatchKMeans(
+            n_clusters=self.config.n_clusters,
+            batch_size=10000,
+            random_state=0
+        )
+        df['bin_id'] = mbk.fit_predict(X_reduced)
         # 5) CLUSTERING INTO BINS
         mbk = MiniBatchKMeans(
             n_clusters=self.config.n_clusters,
@@ -219,6 +243,7 @@ class SmartBinning:
 #         assigned_discount=('discount','first')
 #     ).sort_values('avg_overstock', ascending=False)
 
+#     print(summary)
 #     print(summary)
 
 #     # 12) SAVE FOR WEB
