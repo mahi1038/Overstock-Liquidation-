@@ -33,6 +33,15 @@ if __name__ == '__main__':
 
     input_path  = data_ingestion_artifact.train_path
     input_df = pd.read_csv(input_path)
+    print("📥 input_data read")
+
+
+# we dont have actual_stock, so we synthesize it here
+    np.random.seed(42)
+    offsets = np.random.randint(-100, 101, size=len(input_df))
+    input_df['actual_sales'] = (input_df['future_sales'] + offsets).clip(lower=0)
+    input_df.rename(columns={'actual_sales':'actual_stock'}, inplace=True)
+    print("🔄 sb_dataframe transformation complete")
 
     smart_binning_config = SmartBinningConfig(training_config)
     smart_binning = SmartBinning(input_df, smart_binning_config)
