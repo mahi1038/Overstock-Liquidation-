@@ -31,22 +31,60 @@ if __name__ == '__main__':
     model_trainer_artifact = model_trainer.initiate_model_training()
     print("🤖 Model training complete")
 
-    input_path  = data_ingestion_artifact.train_path
-    input_df = pd.read_csv(input_path)
+
+    # ─── load SB dataframe and MODEL PREDICTIONS ─────────────────────────────
+    sb_path    = data_ingestion_artifact.train_path
+    sb_df      = pd.read_csv(sb_path)
     print("📥 input_data read")
+    preds_path = model_trainer_artifact.predicted_path
+    y_future   = pd.read_csv(preds_path)
+    print("📥 predicted_data read")
+    # ensure the predictions column is named 'future_sales'
+    if 'future_sales' not in y_future.columns:
+        y_future.columns = ['future_sales']
 
+    sb_df['future_sales'] = y_future['future_sales'].values
+    print("📈 Added future_sales to SB dataframe")
+    # ─────────────────────────────────────────────────────────────────────────
 
-# we dont have actual_stock, so we synthesize it here
+    # ─── synthesize actual_stock ─────────────────────────────────────────────
     np.random.seed(42)
-    offsets = np.random.randint(-100, 101, size=len(input_df))
-    input_df['actual_sales'] = (input_df['future_sales'] + offsets).clip(lower=0)
-    input_df.rename(columns={'actual_sales':'actual_stock'}, inplace=True)
-    print("🔄 sb_dataframe transformation complete")
+    offsets = np.random.randint(-100, 101, size=len(sb_df))
+    sb_df['actual_sales'] = (sb_df['future_sales'] + offsets).clip(lower=0)
+    sb_df.rename(columns={'actual_sales':'actual_stock'}, inplace=True)
+    print("🔄 SB dataframe enriched with actual_stock")
+    # ─────────────────────────────────────────────────────────────────────────
 
-    smart_binning_config = SmartBinningConfig(training_config)
-    smart_binning = SmartBinning(input_df, smart_binning_config)
+    # ─── now run smart‑binning ───────────────────────────────────────────────
+
+    smart_binning_config = SmartBinningConfig(training_config, n_clusters=15)
+    smart_binning = SmartBinning(sb_df, smart_binning_config)
     smart_binning_artifact = smart_binning.run()
-    print('smart binning completed')
+    print('📊  smart binning completed')
+
+    # config = SmartBinningConfig(
+    #     output_path=data_ingestion_config.artifact_dir,
+    #     n_clusters=15
+    # )
+    # binner = SmartBinning(sb_df, config)
+    # binner.run()
+    # print("📊 Smart‑binning completed")
+    # ─────────────────────────────────────────────────────────────────────────
+
+
+#     input_path  = data_ingestion_artifact.train_path
+#     input_df = pd.read_csv(input_path)
+#     print("📥 input_data read")
+
+
+# # we dont have actual_stock, so we synthesize it here
+#     np.random.seed(42)
+#     offsets = np.random.randint(-100, 101, size=len(input_df))
+#     input_df['actual_sales'] = (input_df['future_sales'] + offsets).clip(lower=0)
+#     input_df.rename(columns={'actual_sales':'actual_stock'}, inplace=True)
+#     print("🔄 sb_dataframe transformation complete")
+
+
 
 
 
