@@ -36,11 +36,13 @@ class ModelTrainerConfig:
     self.trained_y = os.path.join(self.model_trainer_dir, constants.PREDICTED_TRAIN)
 
 class SmartBinningConfig:
-    def __init__(self, training_pipeline_config: TrainingConfig):
+    def __init__(self, training_pipeline_config: TrainingConfig, n_clusters: int = 15):
         self.smart_binning_dir = os.path.join(training_pipeline_config.artifact_dir_path, constants.SMART_BINNING_DIR_NAME)
         self.smart_binning_smart_bins_file_path = os.path.join(self.smart_binning_dir, constants.SMART_BINNING_SMART_BINS_FILE_NAME)
         self.smart_binning_summary_file_path = os.path.join(self.smart_binning_dir, constants.SMART_BINNING_SUMMARY_FILE_NAME)
         self.smart_binning_strategies_file_path = os.path.join(self.smart_binning_dir, constants.SMART_BINNING_STRATEGIES_FILE_NAME)
+         # **NEW** number of clusters to generate
+        self.n_clusters = n_clusters
 
 
 
